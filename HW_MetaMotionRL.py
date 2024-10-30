@@ -4,7 +4,7 @@ from mbientlab.metawear import MetaWear, libmetawear, parse_value
 from mbientlab.metawear.cbindings import *
 from mbientlab.warble import * 
 import platform
-
+import time
 
 class MetaMotionRLHW(HardwareComponent):
     
@@ -14,6 +14,7 @@ class MetaMotionRLHW(HardwareComponent):
     def __init__(self, app, name=None, debug=False, MAC="F3:F1:E2:D3:6E:A7"):
         self.debug = debug
         self.MAC = MAC
+        self.data_fusion_is_running = False
         HardwareComponent.__init__(self, app, name=name)
 
     def setup(self):
@@ -30,12 +31,13 @@ class MetaMotionRLHW(HardwareComponent):
         print(parse_value(data))
 
     def start_data_fusion_stream(self, start):
+        self.data_fusion_is_running = start
         if start:
             print("start Streaming")
             libmetawear.mbl_mw_sensor_fusion_enable_data(self.device.board, SensorFusionData.LINEAR_ACC)
             libmetawear.mbl_mw_sensor_fusion_start(self.device.board)
         else:
-            print("stop Streaming")
+            print("stop Streaming via button press")
             libmetawear.mbl_mw_sensor_fusion_stop(self.device.board)
 
     def connect(self):
@@ -72,6 +74,14 @@ class MetaMotionRLHW(HardwareComponent):
         # disconnect from hardware
         self.settings.disconnect_all_from_hardware()
         try:
+            
+            #libmetawear.mbl_mw_sensor_fusion_start(self.device.board)
+            if self.data_fusion_is_running:
+                print("stop streaming via hardware disconnect")
+                libmetawear.mbl_mw_sensor_fusion_stop(self.device.board)
+                # this delay is necessary to allow the device to stop streaming. because if I call disconnect immediately after stopping the streaming, the device will not disconnect
+                # the software breaks
+                time.sleep(1)
             libmetawear.mbl_mw_datasignal_unsubscribe(self.signal)
             self.device.disconnect()
             # unsubscribe from data signal
