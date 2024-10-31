@@ -1,6 +1,7 @@
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
 
+
 class FancyMicroscopeApp(BaseMicroscopeApp):
 
     # this is the name of the microscope that ScopeFoundry uses 
@@ -37,6 +38,7 @@ class FancyMicroscopeApp(BaseMicroscopeApp):
 
 if __name__ == '__main__':
     import sys
+    # set the logger to info level in FanceyMicroscopeApp
     
     app = FancyMicroscopeApp(sys.argv)
     sys.exit(app.exec_())

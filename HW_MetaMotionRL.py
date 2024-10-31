@@ -5,6 +5,7 @@ from mbientlab.metawear.cbindings import *
 from mbientlab.warble import * 
 import platform
 import time
+import pdb
 
 class MetaMotionRLHW(HardwareComponent):
     
@@ -22,13 +23,25 @@ class MetaMotionRLHW(HardwareComponent):
         # 1. data rate in HZ for the fusion algorithm
         # 2. choose linear acceleration in fusion algorithm - this should be chosen be default and not open to the user
         # 3. choose the range of the accelerometer in the fusion algorithm
-        self.settings.New(name='MAC', initial=self.MAC, dtype=str, ro=True)
+        self.settings.New(name='MAC', initial=self.MAC, dtype=str, ro=False)
         self.settings.New(name='start_streaming', initial=False, dtype=bool, ro=False)
-        
+        self.settings.New(name='acceleration_range', initial= ('2G', "_2G"), dtype=str, ro=False, choices= [ ('2G', "_2G"), ('4G', "_4G"), ('8G', "_8G"), ('16G', "_16G") ])
         
     def data_handler(self, ctx, data):
         #print("Linear Acceleration: ({0}, {1}, {2})".format(data.x, data.y, data.z))
-        print(parse_value(data))
+        #print(parse_value(data), data.contents.epoch)
+        # construct code to calculate the times per second this function is called
+        current_time = time.time()
+        if not hasattr(self, 'last_time'):
+            self.last_time = current_time
+            self.call_count = 0
+        self.call_count += 1
+        elapsed_time = current_time - self.last_time
+        if elapsed_time >= 1.0:
+            print(f"Data handler called {self.call_count} times in the last second")
+            self.call_count = 0
+            self.last_time = current_time
+        #self.app.log.warning(parse_value(data))
 
     def start_data_fusion_stream(self, start):
         self.data_fusion_is_running = start
@@ -40,6 +53,40 @@ class MetaMotionRLHW(HardwareComponent):
             print("stop Streaming via button press")
             libmetawear.mbl_mw_sensor_fusion_stop(self.device.board)
 
+    def set_acceleration_range(self, range):
+        if range == "_2G":
+            self.app.log.info("set acceleration range to 2G")
+            libmetawear.mbl_mw_sensor_fusion_set_acc_range(self.device.board, SensorFusionAccRange._2G)
+        elif range == "_4G":
+            self.app.log.info("set acceleration range to 4G")
+            libmetawear.mbl_mw_sensor_fusion_set_acc_range(self.device.board, SensorFusionAccRange._4G)
+        elif range == "_8G":
+            self.app.log.info("set acceleration range to 8G")
+            libmetawear.mbl_mw_sensor_fusion_set_acc_range(self.device.board, SensorFusionAccRange._8G)
+        elif range == "_16G":
+            self.app.log.info("set acceleration range to 16G")
+            libmetawear.mbl_mw_sensor_fusion_set_acc_range(self.device.board, SensorFusionAccRange._16G)
+        libmetawear.mbl_mw_sensor_fusion_write_config(self.device.board)
+
+        # Define the callback function to process the configuration data
+    def config_callback(self, context, data, something):
+        print("Config readout callback was called")
+
+    def get_acceleration_range(self):
+        self.callback_config = FnVoid_VoidP_VoidP_Int(self.config_callback)
+        libmetawear.mbl_mw_sensor_fusion_read_config(self.device.board, None, self.callback_config)
+        
+        # Get the current acceleration range from the device
+        # acc_range = libmetawear.mbl_mw_sensor_fusion_get_acc_range(self.device.board)
+        # if acc_range == SensorFusionAccRange._2G:
+        #     return "_2G"
+        # elif acc_range == SensorFusionAccRange._4G:
+        #     return "_4G"
+        # elif acc_range == SensorFusionAccRange._8G:
+        #     return "_8G"
+        # elif acc_range == SensorFusionAccRange._16G:
+        #     return "_16G"
+        
     def connect(self):
         # Open connection to the device:
         self.device = MetaWear(self.settings['MAC'])
@@ -67,8 +114,10 @@ class MetaMotionRLHW(HardwareComponent):
         libmetawear.mbl_mw_datasignal_subscribe(self.signal, None, self.callback)
         
         self.settings.start_streaming.connect_to_hardware(write_func=self.start_data_fusion_stream)
-   
+        self.settings.acceleration_range.connect_to_hardware(write_func=self.set_acceleration_range, read_func=self.get_acceleration_range)
     
+        self.read_from_hardware()
+
     def disconnect(self):
 
         # disconnect from hardware
