@@ -7,6 +7,7 @@ import platform
 import time
 from threading import Event
 import pdb
+from time import sleep
 
 class MetaMotionRLHW(HardwareComponent):
     
@@ -18,7 +19,7 @@ class MetaMotionRLHW(HardwareComponent):
         self.MAC = MAC
         self.data_fusion_is_running = False
         HardwareComponent.__init__(self, app, name=name)
-        self.e = Event()
+        self.callback = FnVoid_VoidP_DataP(self.data_handler)
 
     def setup(self):
         # I would need access to the following parameters
@@ -28,7 +29,8 @@ class MetaMotionRLHW(HardwareComponent):
         self.settings.New(name='MAC', initial=self.MAC, dtype=str, ro=False)
         self.settings.New(name='start_streaming', initial=False, dtype=bool, ro=False)
         self.settings.New(name='acceleration_range', initial= ('2G', "_2G"), dtype=str, ro=False, choices= [ ('2G', "_2G"), ('4G', "_4G"), ('8G', "_8G"), ('16G', "_16G") ])
-        
+        self.settings.New(name='data_rate', initial=21, dtype=int, ro=False, vmin = 1, vmax=200)
+
     def data_handler(self, ctx, data):
         #print("Linear Acceleration: ({0}, {1}, {2})".format(data.x, data.y, data.z))
         #print(parse_value(data), data.contents.epoch)
@@ -77,23 +79,12 @@ class MetaMotionRLHW(HardwareComponent):
     def get_acceleration_range(self):
         self.callback_config = FnVoid_VoidP_VoidP_Int(self.config_callback)
         libmetawear.mbl_mw_sensor_fusion_read_config(self.device.board, None, self.callback_config)
-        
-        # Get the current acceleration range from the device
-        # acc_range = libmetawear.mbl_mw_sensor_fusion_get_acc_range(self.device.board)
-        # if acc_range == SensorFusionAccRange._2G:
-        #     return "_2G"
-        # elif acc_range == SensorFusionAccRange._4G:
-        #     return "_4G"
-        # elif acc_range == SensorFusionAccRange._8G:
-        #     return "_8G"
-        # elif acc_range == SensorFusionAccRange._16G:
-        #     return "_16G"
-    
-    def processor_created(self, ctx, pointer):
-        print("processor created")
-        self.Processor_pointer = pointer
-        self.e.set()
 
+    def set_data_rate(self,data_rate):
+        # calculate period
+        period = int(1000/data_rate)
+        libmetawear.mbl_mw_dataprocessor_time_modify_period(self.processor, period)    
+        
     def connect(self):
         # Open connection to the device:
         self.device = MetaWear(self.settings['MAC'])
@@ -102,14 +93,16 @@ class MetaMotionRLHW(HardwareComponent):
         print("Connected to " + self.device.address + " over " + ("USB" if self.device.usb.is_connected else "BLE"))
         print("Device information: " + str(self.device.info))
 
-        # Set the linear acceleration in the fusion algorithm
-        #self.set_linear_acc_in_fusion()
-        # Set the fusion algorithm to linear acceleration
-        #self.set_fusion_to_LinAcc()
-        
+         # setup ble
+        libmetawear.mbl_mw_settings_set_connection_parameters(self.device.board, 7.5, 7.5, 0, 6000)
+        sleep(1.5)
+        e = Event()
+        def processor_created(ctx, pointer):
+            print("processor created")
+            self.processor = pointer
+            e.set()
+        fn_wrapper = FnVoid_VoidP_VoidP(processor_created)
         # setup the device for streaming data
-        self.callback = FnVoid_VoidP_DataP(self.data_handler)
-
         print("Configuring fusion on meta device")
 
         libmetawear.mbl_mw_sensor_fusion_set_mode(self.device.board, SensorFusionMode.NDOF);
@@ -119,12 +112,16 @@ class MetaMotionRLHW(HardwareComponent):
 
         self.signal = libmetawear.mbl_mw_sensor_fusion_get_data_signal(self.device.board, SensorFusionData.LINEAR_ACC)
         #libmetawear.mbl_mw_dataprocessor_time_create(self.signal, TimeMode.ABSOLUTE, 1000, None, FnVoid_VoidP_VoidP(self.processor_created))
-        libmetawear.mbl_mw_datasignal_subscribe(self.signal, None, self.callback)
+        period = int(1000/self.settings.data_rate.value)
+        libmetawear.mbl_mw_dataprocessor_time_create(self.signal, TimeMode.ABSOLUTE, period, None, fn_wrapper)
+        e.wait()
+
+        libmetawear.mbl_mw_datasignal_subscribe(self.processor, None, self.callback)
         #self.e.wait()
 
         self.settings.start_streaming.connect_to_hardware(write_func=self.start_data_fusion_stream)
         self.settings.acceleration_range.connect_to_hardware(write_func=self.set_acceleration_range, read_func=self.get_acceleration_range)
-    
+        self.settings.data_rate.connect_to_hardware(write_func=self.set_data_rate)
         self.read_from_hardware()
 
     def disconnect(self):
