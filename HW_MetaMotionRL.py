@@ -5,6 +5,7 @@ from mbientlab.metawear.cbindings import *
 from mbientlab.warble import * 
 import platform
 import time
+from threading import Event
 import pdb
 
 class MetaMotionRLHW(HardwareComponent):
@@ -17,6 +18,7 @@ class MetaMotionRLHW(HardwareComponent):
         self.MAC = MAC
         self.data_fusion_is_running = False
         HardwareComponent.__init__(self, app, name=name)
+        self.e = Event()
 
     def setup(self):
         # I would need access to the following parameters
@@ -86,7 +88,12 @@ class MetaMotionRLHW(HardwareComponent):
         #     return "_8G"
         # elif acc_range == SensorFusionAccRange._16G:
         #     return "_16G"
-        
+    
+    def processor_created(self, ctx, pointer):
+        print("processor created")
+        self.Processor_pointer = pointer
+        self.e.set()
+
     def connect(self):
         # Open connection to the device:
         self.device = MetaWear(self.settings['MAC'])
@@ -111,8 +118,10 @@ class MetaMotionRLHW(HardwareComponent):
         libmetawear.mbl_mw_sensor_fusion_write_config(self.device.board)
 
         self.signal = libmetawear.mbl_mw_sensor_fusion_get_data_signal(self.device.board, SensorFusionData.LINEAR_ACC)
+        #libmetawear.mbl_mw_dataprocessor_time_create(self.signal, TimeMode.ABSOLUTE, 1000, None, FnVoid_VoidP_VoidP(self.processor_created))
         libmetawear.mbl_mw_datasignal_subscribe(self.signal, None, self.callback)
-        
+        #self.e.wait()
+
         self.settings.start_streaming.connect_to_hardware(write_func=self.start_data_fusion_stream)
         self.settings.acceleration_range.connect_to_hardware(write_func=self.set_acceleration_range, read_func=self.get_acceleration_range)
     
@@ -131,9 +140,12 @@ class MetaMotionRLHW(HardwareComponent):
                 # this delay is necessary to allow the device to stop streaming. because if I call disconnect immediately after stopping the streaming, the device will not disconnect
                 # the software breaks
                 time.sleep(1)
-            libmetawear.mbl_mw_datasignal_unsubscribe(self.signal)
-            self.device.disconnect()
+            
             # unsubscribe from data signal
+            libmetawear.mbl_mw_datasignal_unsubscribe(self.signal)
+            #libmetawear.mbl_mw_metawearboard_tear_down(self.device.board)  # deletes data processors 
+            self.device.disconnect()
+            
             
 
         except AttributeError:
