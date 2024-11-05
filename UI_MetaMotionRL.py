@@ -70,14 +70,14 @@ class MetaWearUI(Measurement):
     def connect(self):
         self.LeftHandMeta.settings['connected'] = True
         self.RightHandMeta.settings['connected'] = True
-        #self.LeftLegMeta.settings['connected'] = True
-        #self.RightLegMeta.settings['connected'] = True
+        self.LeftLegMeta.settings['connected'] = True
+        self.RightLegMeta.settings['connected'] = True
 
     def disconnect(self):
         self.LeftHandMeta.settings['connected'] = False
         self.RightHandMeta.settings['connected'] = False
-        #self.LeftLegMeta.settings['connected'] = False
-        #self.RightLegMeta.settings['connected'] = False
+        self.LeftLegMeta.settings['connected'] = False
+        self.RightLegMeta.settings['connected'] = False
 
     def setup_figure(self):
         """
@@ -129,6 +129,8 @@ class MetaWearUI(Measurement):
         self.lefthand_plot = self.plot.plot(pen='r', name = "left hand acc")  # a line in the plot for the data
         # anothe line in the plot for all the other data
         self.righthand_plot = self.plot.plot(pen='g', name = "right hand acc")
+        self.leftleg_plot = self.plot.plot(pen='b', name = "left leg acc")
+        self.rightleg_plot = self.plot.plot(pen='y', name = "right leg acc")
 
         # connect to data update signal
         self.LeftHandMeta.acc_data_updated.connect(self.update_left_hand_data)
@@ -139,12 +141,12 @@ class MetaWearUI(Measurement):
     def update_left_leg_data(self, acc_data):
         #print(f"Acceleration of {self.LeftLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left leg data
-        self.lefthand_data.add_data(acc_data.acceleration, acc_data.time)
+        self.leftleg_data.add_data(acc_data.acceleration, acc_data.time)
 
     def update_right_leg_data(self, acc_data):
         #print(f"Acceleration of {self.RightLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right leg data
-        self.righthand_data.add_data(acc_data.acceleration, acc_data.time)
+        self.rightleg_data.add_data(acc_data.acceleration, acc_data.time)
 
     def update_left_hand_data(self, acc_data):
         #print(f"Acceleration of {self.LeftHandMeta.MAC}: {acc_data}")
@@ -164,6 +166,8 @@ class MetaWearUI(Measurement):
         """
         self.lefthand_plot.setData(self.lefthand_data.time_data, self.lefthand_data.acceleration_data)
         self.righthand_plot.setData(self.righthand_data.time_data, self.righthand_data.acceleration_data) 
+        self.leftleg_plot.setData(self.leftleg_data.time_data, self.leftleg_data.acceleration_data)
+        self.rightleg_plot.setData(self.rightleg_data.time_data, self.rightleg_data.acceleration_data)
 
     def run(self):
         """

@@ -51,9 +51,9 @@ class MetaMotionRLHW(HardwareComponent):
         self.add_operation(name='stop_stream', op_func=self.stop_data_fusion_stream_operation)
 
     def data_handler(self, ctx, data):
-        #acc_data = parse_value(data)
-        #acc_data = np.sqrt(acc_data.x**2 + acc_data.y**2 + acc_data.z**2)
-        #self.acc_data_updated.emit(AccelerationData(acc_data, time.time()))
+        acc_data = parse_value(data)
+        acc_data = np.sqrt(acc_data.x**2 + acc_data.y**2 + acc_data.z**2)
+        self.acc_data_updated.emit(AccelerationData(acc_data, time.time()))
 
         #print("Linear Acceleration: ({0}, {1}, {2})".format(data.x, data.y, data.z))
         #print(parse_value(data), data.contents.epoch)
