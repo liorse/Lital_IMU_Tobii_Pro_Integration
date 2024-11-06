@@ -49,6 +49,14 @@ class MetaMotionRLHW(HardwareComponent):
         self.settings.New(name='data_read_samples_per_second', initial=0, dtype=int, ro=True)
         self.add_operation(name='start_stream', op_func=self.start_data_fusion_stream_operation)
         self.add_operation(name='stop_stream', op_func=self.stop_data_fusion_stream_operation)
+        self.add_operation(name='scan_for_devices', op_func=self.scan_for_devices)
+
+    def scan_for_devices(self):
+        print("Scanning for devices")
+        BleScanner.start()
+        sleep(10)
+        BleScanner.stop()
+        print("Scanning for devices complete")
 
     def data_handler(self, ctx, data):
         acc_data = parse_value(data)
@@ -136,7 +144,7 @@ class MetaMotionRLHW(HardwareComponent):
         print("Device information: " + str(self.device.info))
 
         # setup ble
-        #libmetawear.mbl_mw_settings_set_connection_parameters(self.device.board, 7.5, 7.5, 0, 6000)
+        libmetawear.mbl_mw_settings_set_connection_parameters(self.device.board, 7.5, 7.5, 0, 6000)
         sleep(1.5)
         # set tx power to max
         #libmetawear.mbl_mw_settings_set_tx_power(self.device.board, 4)
@@ -168,6 +176,7 @@ class MetaMotionRLHW(HardwareComponent):
         self.settings.acceleration_range.connect_to_hardware(write_func=self.set_acceleration_range, read_func=self.get_acceleration_range)
         self.settings.data_rate.connect_to_hardware(write_func=self.set_data_rate)
         self.settings.data_read_samples_per_second.connect_to_hardware(read_func=self.read_call_count)
+        
         self.read_from_hardware()
   
     def disconnect(self):
@@ -187,14 +196,16 @@ class MetaMotionRLHW(HardwareComponent):
             #libmetawear.mbl_mw_datasignal_unsubscribe(self.signal)
             #libmetawear.mbl_mw_macro_erase_all(self.device.board)
             #libmetawear.mbl_mw_debug_reset_after_gc(self.device.board)
-            libmetawear.mbl_mw_debug_disconnect(self.device.board)
-            time.sleep(2)
+            #libmetawear.mbl_mw_debug_disconnect(self.device.board)
+            #time.sleep(2)
             #libmetawear.mbl_mw_metawearboard_tear_down(self.device.board)  # deletes data processors 
             #time.sleep(1)
             #self.device.disconnect()
-            
-            
-
+            e = Event()
+            self.device.on_disconnect = lambda s: e.set()
+            libmetawear.mbl_mw_debug_reset(self.device.board)
+            e.wait()
+        
         except AttributeError:
             print("called before device was connected")
             

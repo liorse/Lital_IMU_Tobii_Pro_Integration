@@ -2,3 +2,6 @@
 *.txt
 *.json
 *.pyc
+*.h5
+*.avi
+*.mov

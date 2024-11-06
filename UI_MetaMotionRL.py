@@ -115,7 +115,8 @@ class MetaWearUI(Measurement):
         self.LeftLegMeta.settings.data_read_samples_per_second.connect_to_widget(self.ui.left_leg_spinbox)
         self.RightLegMeta.settings.data_read_samples_per_second.connect_to_widget(self.ui.right_leg_spinbox)
 
-        
+        self.ui.Scan_metawear_pushButton.clicked.connect(self.LeftHandMeta.scan_for_devices)
+
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()
         self.ui.plot_groupBox.layout().addWidget(self.graph_layout)

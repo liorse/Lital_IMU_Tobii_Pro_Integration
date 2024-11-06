@@ -26,22 +26,15 @@
       <string>Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="LeftLegConnectCheckBox">
+      <item row="5" column="2">
+       <widget class="QLabel" name="amp_label_3">
         <property name="text">
-         <string>Left leg Connect</string>
+         <string>Left Leg Data Rate</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="LeftArmConnectCheckBox">
-        <property name="text">
-         <string>Left arm Connect</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3">
-       <widget class="QDoubleSpinBox" name="left_leg_spinbox">
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="left_hand_spinbox">
         <property name="decimals">
          <number>0</number>
         </property>
@@ -53,48 +46,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="LeftArmStreamCheckBox">
-        <property name="text">
-         <string>Left arm stream</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="stop_stream_pushButton">
-        <property name="text">
-         <string>Stop Streaming</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="save_h5_checkBox">
-        <property name="text">
-         <string>Save H5</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="amp_label_2">
-        <property name="text">
-         <string>Left Arm Data Rate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="amp_label_3">
-        <property name="text">
-         <string>Left Leg Data Rate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="start_stream_pushButton">
-        <property name="text">
-         <string>Start Streaming</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="0">
        <widget class="QCheckBox" name="RightArmConnectCheckBox">
         <property name="text">
@@ -102,17 +53,10 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="amp_label_4">
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="RightLegStreamCheckBox">
         <property name="text">
-         <string>Right Arm DataRate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="LeftLegStreamCheckBox">
-        <property name="text">
-         <string>Left leg stream</string>
+         <string>Right leg stream</string>
         </property>
        </widget>
       </item>
@@ -136,17 +80,10 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
-       <widget class="QLabel" name="amp_label_5">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="RightLegConnectCheckBox">
         <property name="text">
-         <string>Right Leg Data Rate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="disconnect_pushButton">
-        <property name="text">
-         <string>Disconnect</string>
+         <string>Right leg Connect</string>
         </property>
        </widget>
       </item>
@@ -157,8 +94,22 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="3">
-       <widget class="QDoubleSpinBox" name="right_leg_spinbox">
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="LeftArmStreamCheckBox">
+        <property name="text">
+         <string>Left arm stream</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QLabel" name="amp_label_5">
+        <property name="text">
+         <string>Right Leg Data Rate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QDoubleSpinBox" name="left_leg_spinbox">
         <property name="decimals">
          <number>0</number>
         </property>
@@ -167,6 +118,34 @@
         </property>
         <property name="maximum">
          <double>200.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="amp_label_4">
+        <property name="text">
+         <string>Right Arm DataRate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="disconnect_pushButton">
+        <property name="text">
+         <string>Disconnect</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="start_stream_pushButton">
+        <property name="text">
+         <string>Start Streaming</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="LeftArmConnectCheckBox">
+        <property name="text">
+         <string>Left arm Connect</string>
         </property>
        </widget>
       </item>
@@ -190,15 +169,43 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="QCheckBox" name="RightLegStreamCheckBox">
+      <item row="5" column="0">
+       <widget class="QCheckBox" name="LeftLegConnectCheckBox">
         <property name="text">
-         <string>Right leg stream</string>
+         <string>Left leg Connect</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="QDoubleSpinBox" name="left_hand_spinbox">
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="save_h5_checkBox">
+        <property name="text">
+         <string>Save H5</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="LeftLegStreamCheckBox">
+        <property name="text">
+         <string>Left leg stream</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="stop_stream_pushButton">
+        <property name="text">
+         <string>Stop Streaming</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="amp_label_2">
+        <property name="text">
+         <string>Left Arm Data Rate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QDoubleSpinBox" name="right_leg_spinbox">
         <property name="decimals">
          <number>0</number>
         </property>
@@ -210,10 +217,10 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="RightLegConnectCheckBox">
+      <item row="7" column="0">
+       <widget class="QPushButton" name="Scan_metawear_pushButton">
         <property name="text">
-         <string>Right leg Connect</string>
+         <string>Scan for MetaWear</string>
         </property>
        </widget>
       </item>
