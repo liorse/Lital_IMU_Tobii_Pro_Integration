@@ -1,6 +1,7 @@
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
 from UI_MetaMotionRL import MetaWearUI
+from UI_Experiment_controller import ExperimentControllerUI
 
 class AgencySensor(BaseMicroscopeApp):
 
@@ -24,7 +25,8 @@ class AgencySensor(BaseMicroscopeApp):
         #Add measurement components
         print("Create Measurement objects")
         self.add_measurement(MetaWearUI(self))
-
+        self.add_measurement(ExperimentControllerUI(self))
+        
         # Connect to custom gui
         
         # load side panel UI
