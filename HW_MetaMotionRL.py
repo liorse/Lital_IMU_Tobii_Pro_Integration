@@ -158,7 +158,7 @@ class MetaMotionRLHW(HardwareComponent):
         # setup the device for streaming data
         print("Configuring fusion on meta device")
 
-        libmetawear.mbl_mw_sensor_fusion_set_mode(self.device.board, SensorFusionMode.NDOF);
+        libmetawear.mbl_mw_sensor_fusion_set_mode(self.device.board, SensorFusionMode.IMU_PLUS);
         libmetawear.mbl_mw_sensor_fusion_set_acc_range(self.device.board, SensorFusionAccRange._8G)
         libmetawear.mbl_mw_sensor_fusion_set_gyro_range(self.device.board, SensorFusionGyroRange._2000DPS)
         libmetawear.mbl_mw_sensor_fusion_write_config(self.device.board)

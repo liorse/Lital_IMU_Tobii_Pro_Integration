@@ -17,8 +17,8 @@ class AgencySensor(BaseMicroscopeApp):
         
         #Add hardware components
         print("Adding Hardware Components")
-        self.add_hardware(MetaMotionRLHW(self, name='LeftHandMeta', MAC="F3:F1:E2:D3:6E:A7"))
-        self.add_hardware(MetaMotionRLHW(self, name='RightHandMeta', MAC="C2:26:C4:65:45:54"))
+        self.add_hardware(MetaMotionRLHW(self, name='LeftHandMeta', MAC="C2:26:C4:65:45:54"))
+        self.add_hardware(MetaMotionRLHW(self, name='RightHandMeta', MAC="F3:F1:E2:D3:6E:A7"))
         self.add_hardware(MetaMotionRLHW(self, name='LeftLegMeta', MAC="E1:39:04:67:C2:9B"))
         self.add_hardware(MetaMotionRLHW(self, name='RightLegMeta', MAC="C7:B2:76:3D:6B:1D"))
         
