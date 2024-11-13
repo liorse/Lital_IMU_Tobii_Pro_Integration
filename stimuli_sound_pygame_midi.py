@@ -13,7 +13,7 @@ def zmq_listener():
     global current_speed, current_volume
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
-    socket.connect("tcp://localhost:5555")  # Adjust as needed
+    socket.connect("tcp://localhost:5556")  # Adjust as needed
     socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
     while True:
@@ -64,11 +64,16 @@ def play_midi_in_real_time(file_path):
                 
                 thread_sound = threading.Timer(current_time, play_message, args=[message])
                 thread_sound.start()
+                
                 while thread_sound.is_alive():
+                    pass
+                    '''
                     if current_speed != old_current_speed:
                         thread_sound.cancel()
                         old_current_speed = current_speed
                         break   
+                    '''
+                
                     
           
 

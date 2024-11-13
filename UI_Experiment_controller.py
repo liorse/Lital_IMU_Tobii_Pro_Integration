@@ -47,6 +47,9 @@ class ExperimentControllerUI(Measurement):
         DataLength = 500
         self.buffer = np.zeros(DataLength)
 
+        self.mapped_value_sound_speed = 0
+        self.mapped_value_sound_volume = 0
+
     def map_value(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
@@ -58,9 +61,23 @@ class ExperimentControllerUI(Measurement):
             mapped_value = 0
         self.socket.send_string(str(int(capped_value)))
 
+    def update_left_hand_sound_stimuli(self, acc_data):
 
-# Example usage in your code with capping
+        mapped_value_sound_speed = self.map_value(acc_data.acceleration, 0, 1.0, 0.6, 2)
+        mapped_value_sound_volume = self.map_value(acc_data.acceleration, 0, 1.0, 0.1, 1.5)
+        if mapped_value_sound_speed > 2:
+            mapped_value_sound_speed = 2
+        if mapped_value_sound_volume > 1.5:
+            mapped_value_sound_volume = 1.5
+        # round to 1 decimal place both mapped values and send value only if it has changed
+        mapped_value_sound_speed = round(mapped_value_sound_speed, 1)
+        mapped_value_sound_volume = round(mapped_value_sound_volume, 1)
 
+        if self.mapped_value_sound_speed != mapped_value_sound_speed and self.mapped_value_sound_volume != mapped_value_sound_volume:
+            message = f"{mapped_value_sound_speed},{mapped_value_sound_volume}"
+            self.socket_sound.send_string(message)
+            self.mapped_value_sound_speed = mapped_value_sound_speed
+            self.mapped_value_sound_volume = mapped_value_sound_volume
 
     def setup_figure(self):
         """
@@ -79,9 +96,16 @@ class ExperimentControllerUI(Measurement):
         self.ui.start_stimuli_pushButton.clicked.connect(self.start)
         self.ui.stop_stimuli_pushButton.clicked.connect(self.interrupt)
         self.ui.fps_spinBox.valueChanged.connect(self.update_fps)
+        self.ui.sound_volume_spinBox.valueChanged.connect(self.update_sound_volume_and_speed)
+        self.ui.sound_speed_spinBox.valueChanged.connect(self.update_sound_volume_and_speed)
+
         #self.RightHandMeta.acc_data_updated.connect(self.update_right_hand_data)
         #self.LeftLegMeta.acc_data_updated.connect(self.update_left_leg_data)
         #self.RightLegMeta.acc_data_updated.connect(self.update_right_leg_data)
+
+    def update_sound_volume_and_speed(self):
+        message = f"{self.ui.sound_speed_spinBox.value()},{self.ui.sound_volume_spinBox.value()}"
+        self.socket_sound.send_string(message)
 
     def update_fps(self):
         self.socket.send_string(str(int(self.ui.fps_spinBox.value())))
@@ -119,16 +143,25 @@ class ExperimentControllerUI(Measurement):
         # We use a try/finally block, so that if anything goes wrong during a measurement,
         # the finally block can clean things up, e.g. close the data file object.
         
-        # setup the zeromq server
-        print("setup zmq server")
+        # setup the zeromq server to both visual and sound servers
+        print("setup zmq server for visuals")
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
         self.socket.bind("tcp://localhost:5555")  # Bind to the port to allow connections
 
+        print("setup zmq server for sound")
+        self.context_sound = zmq.Context()
+        self.socket_sound = self.context_sound.socket(zmq.PUB)
+        self.socket_sound.bind("tcp://localhost:5556")  # Bind to the port to allow connections
+
         # run the stimuli visualizer in a seperate process using the shell
         self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
 
+        # run the stimuli sound in a seperate process using the shell
+        self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py"])
+
         self.LeftHandMeta.acc_data_updated.connect(self.update_left_hand_data)
+        self.LeftHandMeta.acc_data_updated.connect(self.update_left_hand_sound_stimuli)
 
         try:
             i = 0
@@ -167,13 +200,19 @@ class ExperimentControllerUI(Measurement):
 
             # close the stimuli visualizer
             print("close down stimuli visualizer")
-                    
             self.stimuli_process.terminate()
+            print("close down stimuli sound")
+            self.stimuli_sound_process.terminate()
+
             self.LeftHandMeta.acc_data_updated.disconnect(self.update_left_hand_data)
+            self.LeftHandMeta.acc_data_updated.disconnect(self.update_left_hand_sound_stimuli)
             print("Experiment is finished")
-            print("close down zmq server")
+            print("close down zmq server visual")
             self.socket.close()
             self.context.term()
+            print("close down zmq server sound")
+            self.socket_sound.close()
+            self.context_sound.term()
             if self.settings['save_h5']:
                 # make sure to close the data file
                 self.h5file.close()
