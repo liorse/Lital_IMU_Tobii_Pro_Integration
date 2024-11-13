@@ -87,4 +87,4 @@ def main(movie_path, zmq_port):
     pygame.quit()
 
 if __name__ == "__main__":
-    main(r"C:\Users\Liors\Documents\GitHub\Lital_IMU_Tobii_Pro_Integration\media\Mobile_movie_trim2.avi", 5555)
+    main(r".\media\Mobile_movie_trim2.avi", 5555)
