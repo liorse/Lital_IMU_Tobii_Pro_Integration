@@ -70,9 +70,15 @@ def play_midi_in_real_time(file_path):
                     '''
                     if current_speed != old_current_speed:
                         thread_sound.cancel()
+                        if message.time > 0:
+                            current_time = message.time / current_speed
+                        else:
+                            current_time = 0                
+                        thread_sound = threading.Timer(current_time, play_message, args=[message])
+                        thread_sound.start()
                         old_current_speed = current_speed
-                        break   
-                    '''
+                   '''     
+                    
                 
                     
           
