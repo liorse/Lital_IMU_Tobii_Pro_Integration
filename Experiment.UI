@@ -26,34 +26,6 @@
       <string>Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="2">
-       <widget class="QCheckBox" name="save_h5_checkBox">
-        <property name="text">
-         <string>Save H5</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QCheckBox" name="RightLegConnectCheckBox">
-        <property name="text">
-         <string>Right leg Connect</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QPushButton" name="Scan_metawear_pushButton">
-        <property name="text">
-         <string>Scan for MetaWear</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="stop_stimuli_pushButton">
-        <property name="text">
-         <string>Stop Stimuli</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QDoubleSpinBox" name="fps_spinBox">
         <property name="decimals">
@@ -67,31 +39,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="start_stimuli_pushButton">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="stop_stimuli_pushButton">
         <property name="text">
-         <string>Start Stimuli</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="framerate_label_label">
-        <property name="text">
-         <string>FrameRate [fps]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="framerate_label_label_2">
-        <property name="text">
-         <string>sound speed</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="framerate_label_label_3">
-        <property name="text">
-         <string>sound volume</string>
+         <string>Stop Stimuli</string>
         </property>
        </widget>
       </item>
@@ -111,6 +62,86 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="framerate_label_label">
+        <property name="text">
+         <string>FrameRate [fps]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="RightLegConnectCheckBox">
+        <property name="text">
+         <string>Right leg Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="framerate_label_label_2">
+        <property name="text">
+         <string>sound speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QDoubleSpinBox" name="max_sound_speed_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>0.200000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>5.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>5.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QPushButton" name="Scan_metawear_pushButton">
+        <property name="text">
+         <string>Scan for MetaWear</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="start_stimuli_pushButton">
+        <property name="text">
+         <string>Start Stimuli</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QDoubleSpinBox" name="min_sound_speed_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>5.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>2.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QCheckBox" name="save_h5_checkBox">
+        <property name="text">
+         <string>Save H5</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="2">
        <widget class="QDoubleSpinBox" name="sound_volume_spinBox">
         <property name="decimals">
@@ -124,6 +155,27 @@
         </property>
         <property name="singleStep">
          <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="framerate_label_label_3">
+        <property name="text">
+         <string>sound volume</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="framerate_label_label_4">
+        <property name="text">
+         <string>Min sound Speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="framerate_label_label_5">
+        <property name="text">
+         <string>Max sound Speed</string>
         </property>
        </widget>
       </item>

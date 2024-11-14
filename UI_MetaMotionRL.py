@@ -94,6 +94,12 @@ class MetaWearUI(Measurement):
         self.ui.stop_stream_pushButton.clicked.connect(self.interrupt)
         self.settings.save_h5.connect_to_widget(self.ui.save_h5_checkBox)
        
+        # connect settings to hardware operations
+        self.LeftHandMeta.settings.battery_charge.connect_to_widget(self.ui.Battery_Left_hand_spinBox)
+        self.RightHandMeta.settings.battery_charge.connect_to_widget(self.ui.Battery_Right_hand_spinBox)
+        self.LeftLegMeta.settings.battery_charge.connect_to_widget(self.ui.Battery_Left_leg_spinBox)
+        self.RightLegMeta.settings.battery_charge.connect_to_widget(self.ui.Battery_Right_leg_spinBox)
+    
         # Connect settings to hardware operations
         self.LeftHandMeta.settings.data_rate.connect_to_widget(self.ui.datarate_spinBox)
         self.RightHandMeta.settings.data_rate.connect_to_widget(self.ui.datarate_spinBox)

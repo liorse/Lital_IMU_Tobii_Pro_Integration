@@ -6,9 +6,9 @@ import threading
 from datetime import datetime
 
 # Global variables for current playback speed and volume
-old_current_speed = 1.0
-current_speed = 1.0
-current_volume = 1.0  # Full volume
+old_current_speed = 0.1
+current_speed = 0.1
+current_volume = 0.1  # Full volume
 
 class CustomTimer(threading.Timer):
     def __init__(self, interval, function, args=None, kwargs=None):
@@ -81,7 +81,8 @@ def play_midi_in_real_time(file_path):
                 thread_sound.start()
                 
                 while thread_sound.is_alive():
-                    
+                    pass
+                '''
                     if current_speed != old_current_speed:
                         thread_sound.cancel()
                         if message.time > 0:
@@ -98,6 +99,7 @@ def play_midi_in_real_time(file_path):
                         thread_sound = CustomTimer(current_time, play_message, args=[message])
                         thread_sound.start()
                         old_current_speed = current_speed
+                '''
                         
                     
                 

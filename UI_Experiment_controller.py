@@ -63,10 +63,10 @@ class ExperimentControllerUI(Measurement):
 
     def update_left_hand_sound_stimuli(self, acc_data):
 
-        mapped_value_sound_speed = self.map_value(acc_data.acceleration, 0, 1.0, 0.6, 2)
+        mapped_value_sound_speed = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_speed_spinBox.value(), self.ui.max_sound_speed_spinBox.value())
         mapped_value_sound_volume = self.map_value(acc_data.acceleration, 0, 1.0, 0.1, 1.5)
-        if mapped_value_sound_speed > 2:
-            mapped_value_sound_speed = 2
+        if mapped_value_sound_speed > self.ui.max_sound_speed_spinBox.value():
+            mapped_value_sound_speed = self.ui.max_sound_speed_spinBox.value()
         if mapped_value_sound_volume > 1.5:
             mapped_value_sound_volume = 1.5
         # round to 1 decimal place both mapped values and send value only if it has changed
@@ -155,7 +155,7 @@ class ExperimentControllerUI(Measurement):
         self.socket_sound.bind("tcp://localhost:5556")  # Bind to the port to allow connections
 
         # run the stimuli visualizer in a seperate process using the shell
-        #self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
+        self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
 
         # run the stimuli sound in a seperate process using the shell
         self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py"])
@@ -200,7 +200,7 @@ class ExperimentControllerUI(Measurement):
 
             # close the stimuli visualizer
             print("close down stimuli visualizer")
-            #self.stimuli_process.terminate()
+            self.stimuli_process.terminate()
             print("close down stimuli sound")
             self.stimuli_sound_process.terminate()
 

@@ -11,6 +11,8 @@ from threading import Event
 import pdb
 from time import sleep
 e = Event()
+import threading
+from apscheduler.schedulers.background import BackgroundScheduler
 
 class AccelerationData:
     def __init__(self, acceleration, time):
@@ -47,9 +49,13 @@ class MetaMotionRLHW(HardwareComponent):
         self.settings.New(name='acceleration_range', initial= ('2G', "_2G"), dtype=str, ro=False, choices= [ ('2G', "_2G"), ('4G', "_4G"), ('8G', "_8G"), ('16G', "_16G") ])
         self.settings.New(name='data_rate', initial=21, dtype=int, ro=False, vmin = 1, vmax=200)
         self.settings.New(name='data_read_samples_per_second', initial=0, dtype=int, ro=True)
+        self.settings.New(name='battery_charge', initial=0, dtype=int, ro=True)
+        self.settings.New(name='battery_voltage', initial=0, dtype=int, ro=True)
         self.add_operation(name='start_stream', op_func=self.start_data_fusion_stream_operation)
         self.add_operation(name='stop_stream', op_func=self.stop_data_fusion_stream_operation)
         self.add_operation(name='scan_for_devices', op_func=self.scan_for_devices)
+        self.battery_charge = 0 # battery charge in percentage
+        self.battery_voltage = 0 # battery voltage in volts
 
     def scan_for_devices(self):
         print("Scanning for devices")
@@ -131,6 +137,19 @@ class MetaMotionRLHW(HardwareComponent):
     def read_call_count(self):
         return self.call_count
     
+    def read_battery_charge_thread(self):
+        # read battery state
+        libmetawear.mbl_mw_datasignal_read(self.battery_signal)
+            
+    def battery_callback(self, ctx, data): 
+        value = parse_value(data)
+        self.battery_charge = value.charge # battery charge in percentage
+        self.battery_voltage = value.voltage # battery voltage in volts
+        self.settings.battery_charge.read_from_hardware()
+        self.settings.battery_voltage.read_from_hardware()
+        #print("Battery charge: ", self.battery_charge)
+        #print("Battery voltage: ", self.battery_voltage)
+        
     def connect(self):
         # Open connection to the device:
         #BleScanner.start()
@@ -158,6 +177,8 @@ class MetaMotionRLHW(HardwareComponent):
         # setup the device for streaming data
         print("Configuring fusion on meta device")
 
+
+        
         libmetawear.mbl_mw_sensor_fusion_set_mode(self.device.board, SensorFusionMode.IMU_PLUS);
         libmetawear.mbl_mw_sensor_fusion_set_acc_range(self.device.board, SensorFusionAccRange._8G)
         libmetawear.mbl_mw_sensor_fusion_set_gyro_range(self.device.board, SensorFusionGyroRange._2000DPS)
@@ -176,14 +197,27 @@ class MetaMotionRLHW(HardwareComponent):
         self.settings.acceleration_range.connect_to_hardware(write_func=self.set_acceleration_range, read_func=self.get_acceleration_range)
         self.settings.data_rate.connect_to_hardware(write_func=self.set_data_rate)
         self.settings.data_read_samples_per_second.connect_to_hardware(read_func=self.read_call_count)
+        self.settings.battery_charge.connect_to_hardware(read_func=lambda: self.battery_charge)
+        self.settings.battery_voltage.connect_to_hardware(read_func=lambda: self.battery_voltage)
+        #self.read_from_hardware()
+
+        self.battery_signal = libmetawear.mbl_mw_settings_get_battery_state_data_signal(self.device.board)
+        #self.charge = libmetawear.mbl_mw_datasignal_get_component(self.battery_signal, Const.SETTINGS_BATTERY_CHARGE_INDEX)
+        self.bat_wrapper = FnVoid_VoidP_DataP(self.battery_callback) 
+        libmetawear.mbl_mw_datasignal_subscribe(self.battery_signal, None, self.bat_wrapper)
+        libmetawear.mbl_mw_datasignal_read(self.battery_signal)
         
-        self.read_from_hardware()
-  
+        #libmetawear.mbl_mw_datasignal_read(self.battery_signal)
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.add_job(self.read_battery_charge_thread, 'interval', seconds=1)
+        self.scheduler.start()
+        
     def disconnect(self):
 
-        # disconnect from hardware
         try:
-            
+            # disconnect from hardware
+            self.scheduler.shutdown()
+
             #libmetawear.mbl_mw_sensor_fusion_start(self.device.board)
             if self.data_fusion_is_running:
                 print("stop streaming via hardware disconnect")
@@ -201,6 +235,7 @@ class MetaMotionRLHW(HardwareComponent):
             #libmetawear.mbl_mw_metawearboard_tear_down(self.device.board)  # deletes data processors 
             #time.sleep(1)
             #self.device.disconnect()
+            libmetawear.mbl_mw_datasignal_unsubscribe(self.battery_signal)
             e = Event()
             self.device.on_disconnect = lambda s: e.set()
             libmetawear.mbl_mw_debug_reset(self.device.board)
