@@ -155,7 +155,7 @@ class ExperimentControllerUI(Measurement):
         self.socket_sound.bind("tcp://localhost:5556")  # Bind to the port to allow connections
 
         # run the stimuli visualizer in a seperate process using the shell
-        self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
+        #self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
 
         # run the stimuli sound in a seperate process using the shell
         self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py"])
@@ -200,7 +200,7 @@ class ExperimentControllerUI(Measurement):
 
             # close the stimuli visualizer
             print("close down stimuli visualizer")
-            self.stimuli_process.terminate()
+            #self.stimuli_process.terminate()
             print("close down stimuli sound")
             self.stimuli_sound_process.terminate()
 

@@ -3,12 +3,27 @@ import pygame.midi
 import time
 import zmq
 import threading
+from datetime import datetime
 
 # Global variables for current playback speed and volume
 old_current_speed = 1.0
 current_speed = 1.0
 current_volume = 1.0  # Full volume
 
+class CustomTimer(threading.Timer):
+    def __init__(self, interval, function, args=None, kwargs=None):
+        super().__init__(interval, function, args, kwargs)
+        self.start_time = None
+
+    def start(self):
+        self.start_time = datetime.now()
+        super().start()
+
+    def get_elapsed_time(self):
+        if self.start_time:
+            return (datetime.now() - self.start_time).total_seconds()
+        return None
+    
 def zmq_listener():
     global current_speed, current_volume
     context = zmq.Context()
@@ -62,22 +77,28 @@ def play_midi_in_real_time(file_path):
                 else:
                     current_time = 0
                 
-                thread_sound = threading.Timer(current_time, play_message, args=[message])
+                thread_sound = CustomTimer(current_time, play_message, args=[message])
                 thread_sound.start()
                 
                 while thread_sound.is_alive():
-                    pass
-                    '''
+                    
                     if current_speed != old_current_speed:
                         thread_sound.cancel()
                         if message.time > 0:
                             current_time = message.time / current_speed
+                            elapsed_time = thread_sound.get_elapsed_time()
+                            print("elapsed time", elapsed_time)
+                            print("total time", current_time)
                         else:
-                            current_time = 0                
-                        thread_sound = threading.Timer(current_time, play_message, args=[message])
+                            current_time = 0
+                        if current_time < elapsed_time:
+                            current_time = 0
+                        else:
+                            current_time = current_time - elapsed_time                                        
+                        thread_sound = CustomTimer(current_time, play_message, args=[message])
                         thread_sound.start()
                         old_current_speed = current_speed
-                   '''     
+                        
                     
                 
                     
@@ -97,5 +118,6 @@ threading.Thread(target=zmq_listener, daemon=True).start()
 
 if __name__ == "__main__":
     # Start MIDI playback with real-time speed and volume control
+    # source for the file is here https://bitmidi.com/brahms-lullaby-wiegenlied-piano-mid
     file_path = "./media/brahms-lullaby-wiegenlied-piano.mid"  # Replace with your MIDI file path
     play_midi_in_real_time(file_path)
