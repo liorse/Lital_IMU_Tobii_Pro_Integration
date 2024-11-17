@@ -3,7 +3,7 @@ from ScopeFoundry.helper_funcs import sibling_path, load_qt_ui_file
 from ScopeFoundry import h5_io
 import pyqtgraph as pg
 import numpy as np
-import time
+from time import sleep
 
 # this class is used to store the acceleration data buffer and its corresponding time buffer
 class AccelerationDataBuffer(object):
@@ -11,6 +11,7 @@ class AccelerationDataBuffer(object):
         self.buffer_size = buffer_size
         self.acceleration_data = np.zeros(buffer_size, dtype=float)
         self.time_data = np.zeros(buffer_size, dtype=float)
+        self.queue = []
 
     def add_data(self, acc_data, time_data):
         self.acceleration_data = np.roll(self.acceleration_data, 1)
@@ -20,6 +21,16 @@ class AccelerationDataBuffer(object):
 
     def get_data(self):
         return self.acceleration_data, self.time_data
+    
+    def add_to_queue(self, time_data, acc_data):
+        self.queue.append((time_data, acc_data))
+        if len(self.queue) > self.buffer_size:
+            self.queue.pop(0)
+    
+    def pop_all_from_queue(self):
+        data = self.queue[:]
+        self.queue.clear()
+        return data
 
 
 class MetaWearUI(Measurement):
@@ -149,21 +160,25 @@ class MetaWearUI(Measurement):
         #print(f"Acceleration of {self.LeftLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left leg data
         self.leftleg_data.add_data(acc_data.acceleration, acc_data.time)
-
+        self.leftleg_data.add_to_queue(acc_data.time, acc_data.acceleration)
+        
     def update_right_leg_data(self, acc_data):
         #print(f"Acceleration of {self.RightLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right leg data
         self.rightleg_data.add_data(acc_data.acceleration, acc_data.time)
+        self.rightleg_data.add_to_queue(acc_data.time, acc_data.acceleration)
 
     def update_left_hand_data(self, acc_data):
         #print(f"Acceleration of {self.LeftHandMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left hand data
         self.lefthand_data.add_data(acc_data.acceleration, acc_data.time)
-        
+        self.lefthand_data.add_to_queue(acc_data.time, acc_data.acceleration)
+
     def update_right_hand_data(self, acc_data):
         #print(f"Acceleration of {self.RightHandMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right hand data
         self.righthand_data.add_data(acc_data.acceleration, acc_data.time)
+        self.righthand_data.add_to_queue(acc_data.time, acc_data.acceleration)
 
     def update_display(self):
         """
@@ -197,7 +212,33 @@ class MetaWearUI(Measurement):
             self.buffer_h5 = self.h5_group.create_dataset(name  = 'buffer', 
                                                           shape = self.buffer.shape,
                                                           dtype = self.buffer.dtype)
-        
+            
+            # create four datasets to store the acceleration data with unlimited size with chunk size 1000
+            # the dataset will hold the acceleratoin data and timestamp data
+            self.lefthand_data_h5 = self.h5_group.create_dataset(name='left_hand_data', 
+                 shape=(0, 2), 
+                 maxshape=(None, 2), 
+                 chunks=(1000, 2),
+                 dtype='f8')  # Use 'f8' for float64, which is a standard double-precision float
+            
+            # add for the other three limbs
+            self.righthand_data_h5 = self.h5_group.create_dataset(name='right_hand_data', 
+                 shape=(0, 2), 
+                 maxshape=(None, 2), 
+                 chunks=(1000, 2),
+                 dtype='f8')
+            
+            self.leftleg_data_h5 = self.h5_group.create_dataset(name='left_leg_data', 
+                 shape=(0, 2), 
+                 maxshape=(None, 2), 
+                 chunks=(1000, 2),
+                 dtype='f8')
+            
+            self.rightleg_data_h5 = self.h5_group.create_dataset(name='right_leg_data', 
+                 shape=(0, 2), 
+                 maxshape=(None, 2), 
+                 chunks=(1000, 2),
+                 dtype='f8')
         # We use a try/finally block, so that if anything goes wrong during a measurement,
         # the finally block can clean things up, e.g. close the data file object.
         self.LeftHandMeta.settings['start_streaming'] = True
@@ -214,25 +255,48 @@ class MetaWearUI(Measurement):
             
             # Will run forever until interrupt is called.
             while not self.interrupt_measurement_called:
-                i %= len(self.buffer)
+                #i %= len(self.buffer)
                 
                 # Set progress bar percentage complete
-                self.settings['progress'] = i * 100./len(self.buffer)
+                #self.settings['progress'] = i * 100./len(self.buffer)
                 
                 # Fills the buffer with sine wave readings from func_gen Hardware
                 #self.buffer[i] = self.func_gen.settings.sine_data.read_from_hardware()
                 
+
                 if self.settings['save_h5']:
-                    # if we are saving data to disk, copy data to H5 dataset
-                    self.buffer_h5[i] = self.buffer[i]
-                    # flush H5
-                    self.h5file.flush()
-                
-                # wait between readings.
-                # We will use our sampling_period settings to define time
-                time.sleep(self.settings['sampling_period'])
+                    # resizes the dataset to fit the new data
+                    # pop from lefthand_data queue and save to h5 file
+                    data = self.lefthand_data.pop_all_from_queue()
+                    # add the for the other three limbs
+                    if data:
+                        new_size = self.lefthand_data_h5.shape[0] + len(data)
+                        self.lefthand_data_h5.resize(new_size, axis=0)
+                        self.lefthand_data_h5[-len(data):] = np.array(data)
+
+                    data = self.righthand_data.pop_all_from_queue()
+                    if data:
+                        new_size = self.righthand_data_h5.shape[0] + len(data)
+                        self.righthand_data_h5.resize(new_size, axis=0)
+                        self.righthand_data_h5[-len(data):] = np.array(data)
+
+                    data = self.leftleg_data.pop_all_from_queue()
+                    if data:
+                        new_size = self.leftleg_data_h5.shape[0] + len(data)
+                        self.leftleg_data_h5.resize(new_size, axis=0)
+                        self.leftleg_data_h5[-len(data):] = np.array(data)
+                    
+                    data = self.rightleg_data.pop_all_from_queue()
+                    if data:
+                        new_size = self.rightleg_data_h5.shape[0] + len(data)
+                        self.rightleg_data_h5.resize(new_size, axis=0)
+                        self.rightleg_data_h5[-len(data):] = np.array(data)
                 
                 i += 1
+
+                # wait between readings.
+                # We will use our sampling_period settings to define time
+                sleep(self.settings['sampling_period'])
 
                 if self.interrupt_measurement_called:
                     # Listen for interrupt_measurement_called flag.
@@ -254,4 +318,11 @@ class MetaWearUI(Measurement):
         finally:            
             if self.settings['save_h5']:
                 # make sure to close the data file
+                #self.h5file.flush()
                 self.h5file.close()
+                # clean the queues
+                data = self.lefthand_data.pop_all_from_queue()
+                data = self.righthand_data.pop_all_from_queue()
+                data = self.leftleg_data.pop_all_from_queue()
+                data = self.rightleg_data.pop_all_from_queue()
+

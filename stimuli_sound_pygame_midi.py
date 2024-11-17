@@ -35,7 +35,7 @@ def zmq_listener():
         # Receive a message in the format "speed,volume" (e.g., "1.5,0.8")
         message = socket.recv_string()
         speed, volume = map(float, message.split(","))
-        print(f"Received new speed: {speed}, new volume: {volume}")
+        #print(f"Received new speed: {speed}, new volume: {volume}")
 
         # Update speed and volume
         old_current_speed = current_speed

@@ -55,8 +55,8 @@ class ExperimentControllerUI(Measurement):
 
     def update_left_hand_data(self, acc_data):
 
-        mapped_value = int(self.map_value(acc_data.acceleration, 0, 1.0, 0, 200))
-        capped_value = max(0, min(mapped_value, 200))  # Cap the value between 0 and 200
+        mapped_value = int(self.map_value(acc_data.acceleration, 0, 1.0, 0, 150))
+        capped_value = max(0, min(mapped_value, 150))  # Cap the value between 0 and 200
         if acc_data.acceleration < 0.1:
             mapped_value = 0
         self.socket.send_string(str(int(capped_value)))
