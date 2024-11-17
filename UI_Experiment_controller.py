@@ -60,6 +60,7 @@ class ExperimentControllerUI(Measurement):
         if acc_data.acceleration < 0.1:
             mapped_value = 0
         self.socket.send_string(str(int(capped_value)))
+        print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {mapped_value}")
 
     def update_left_hand_sound_stimuli(self, acc_data):
 
