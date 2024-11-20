@@ -35,6 +35,13 @@ class ExperimentControllerUI(Measurement):
         # All settings are automatically added to the Microscope user interface
         self.settings.New('save_h5', dtype=bool, initial=True)
         self.settings.New('sampling_period', dtype=float, unit='s', initial=0.1)
+        self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.6, vmin=0.0, vmax=16.0)
+        self.settings.New('min_movie_speed', dtype=float, unit='fps', initial=0, vmin=0, vmax=20)
+        self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=60, vmin=0, vmax=151)
+        self.settings.New('min_sound_speed', dtype=float, unit='', initial=1.0, vmin=1.0, vmax=5.0)
+        self.settings.New('max_sound_speed', dtype=float, unit='', initial=2.0, vmin=1.0, vmax=5.0)
+        self.settings.New('min_sound_volume', dtype=float, unit='', initial=0.1, vmin=0.1, vmax=1.5)
+        self.settings.New('max_sound_volume', dtype=float, unit='', initial=1.5, vmin=0.1, vmax=1.5)
         
         # Define how often to update display during a run
         self.display_update_period = 1/60
@@ -54,31 +61,38 @@ class ExperimentControllerUI(Measurement):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
     def update_left_hand_data(self, acc_data):
-
-        mapped_value = int(self.map_value(acc_data.acceleration, 0, 1.0, 0, 150))
-        capped_value = max(0, min(mapped_value, 150))  # Cap the value between 0 and 200
-        if acc_data.acceleration < 0.1:
-            mapped_value = 0
+        # control the speed of the movie based on the acceleration of the left hand
+        mapped_value = int(self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_movie_speed_spinBox.value(), self.ui.max_movie_speed_spinBox.value()))
+        capped_value = max(0, min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
+        if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
+            capped_value = 0
         self.socket.send_string(str(int(capped_value)))
-        print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {mapped_value}")
+        #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {capped_value}")
 
     def update_left_hand_sound_stimuli(self, acc_data):
-
+        # control the speed and volume of the sound based on the acceleration of the left hand
         mapped_value_sound_speed = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_speed_spinBox.value(), self.ui.max_sound_speed_spinBox.value())
-        mapped_value_sound_volume = self.map_value(acc_data.acceleration, 0, 1.0, 0.1, 1.5)
+        mapped_value_sound_volume = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_volume_spinBox.value(), self.ui.max_sound_volume_spinBox.value())
         if mapped_value_sound_speed > self.ui.max_sound_speed_spinBox.value():
             mapped_value_sound_speed = self.ui.max_sound_speed_spinBox.value()
-        if mapped_value_sound_volume > 1.5:
-            mapped_value_sound_volume = 1.5
+        if mapped_value_sound_volume > self.ui.max_sound_volume_spinBox.value():
+            mapped_value_sound_volume = self.ui.max_sound_volume_spinBox.value()
+    
+        if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
+            # make it silent but keep the speed of the sound @ 1.0 to maintain the speed of reacting to the acceleration
+            mapped_value_sound_speed = 1.0
+            mapped_value_sound_volume = 0.1
+        
         # round to 1 decimal place both mapped values and send value only if it has changed
         mapped_value_sound_speed = round(mapped_value_sound_speed, 1)
         mapped_value_sound_volume = round(mapped_value_sound_volume, 1)
-
+        
         if self.mapped_value_sound_speed != mapped_value_sound_speed and self.mapped_value_sound_volume != mapped_value_sound_volume:
             message = f"{mapped_value_sound_speed},{mapped_value_sound_volume}"
             self.socket_sound.send_string(message)
             self.mapped_value_sound_speed = mapped_value_sound_speed
             self.mapped_value_sound_volume = mapped_value_sound_volume
+            #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value Sound Speed: {mapped_value_sound_speed}, Mapped Value Sound Volume: {mapped_value_sound_volume}")
 
     def setup_figure(self):
         """
@@ -99,6 +113,13 @@ class ExperimentControllerUI(Measurement):
         self.ui.fps_spinBox.valueChanged.connect(self.update_fps)
         self.ui.sound_volume_spinBox.valueChanged.connect(self.update_sound_volume_and_speed)
         self.ui.sound_speed_spinBox.valueChanged.connect(self.update_sound_volume_and_speed)
+        self.settings.acceleration_threshold.connect_to_widget(self.ui.acceleration_threshold_spinBox)
+        self.settings.min_movie_speed.connect_to_widget(self.ui.min_movie_speed_spinBox)
+        self.settings.max_movie_speed.connect_to_widget(self.ui.max_movie_speed_spinBox)
+        self.settings.min_sound_speed.connect_to_widget(self.ui.min_sound_speed_spinBox)
+        self.settings.max_sound_speed.connect_to_widget(self.ui.max_sound_speed_spinBox)
+        self.settings.min_sound_volume.connect_to_widget(self.ui.min_sound_volume_spinBox)
+        self.settings.max_sound_volume.connect_to_widget(self.ui.max_sound_volume_spinBox)
 
         #self.RightHandMeta.acc_data_updated.connect(self.update_right_hand_data)
         #self.LeftLegMeta.acc_data_updated.connect(self.update_left_leg_data)
