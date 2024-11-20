@@ -35,6 +35,8 @@ class ExperimentControllerUI(Measurement):
         # All settings are automatically added to the Microscope user interface
         self.settings.New('save_h5', dtype=bool, initial=True)
         self.settings.New('sampling_period', dtype=float, unit='s', initial=0.1)
+        
+        # mobile settings
         self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.6, vmin=0.0, vmax=16.0)
         self.settings.New('min_movie_speed', dtype=float, unit='fps', initial=0, vmin=0, vmax=20)
         self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=60, vmin=0, vmax=151)
@@ -43,6 +45,13 @@ class ExperimentControllerUI(Measurement):
         self.settings.New('min_sound_volume', dtype=float, unit='', initial=0.1, vmin=0.1, vmax=1.5)
         self.settings.New('max_sound_volume', dtype=float, unit='', initial=1.5, vmin=0.1, vmax=1.5)
         
+        # participants settings
+        self.settings.New('participant', dtype=int, unit='', initial=5000, vmin=5000, vmax=5999)
+        self.settings.New('age', dtype=int, unit='months', initial=4, vmin=0, vmax=96)
+        self.settings.New('task_name', dtype=str, initial='Mobile')
+        self.settings.New('trial_number', dtype=int, initial=1 ,vmin=1, vmax=100)
+        self.settings.New('task_ID', dtype=str, initial='')
+
         # Define how often to update display during a run
         self.display_update_period = 1/60
         
