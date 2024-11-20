@@ -73,7 +73,12 @@ def play_midi_in_real_time(file_path):
             current_time = 0
             for message in midi_file:
                 if message.time > 0:
-                    current_time = message.time / current_speed
+                    if current_speed == 0:
+                        # pause the playback until current_speed is different than 0
+                        while current_speed == 0:
+                            time.sleep(0.01)                            
+                    else:
+                        current_time = message.time / current_speed
                 else:
                     current_time = 0
                 
@@ -81,7 +86,8 @@ def play_midi_in_real_time(file_path):
                 thread_sound.start()
                 
                 while thread_sound.is_alive():
-                    pass
+                    time.sleep(0.01)
+                    
                 '''
                     if current_speed != old_current_speed:
                         thread_sound.cancel()
@@ -100,12 +106,6 @@ def play_midi_in_real_time(file_path):
                         thread_sound.start()
                         old_current_speed = current_speed
                 '''
-                        
-                    
-                
-                    
-          
-
     try:
         old_current_speed = current_speed
         schedule_messages()
