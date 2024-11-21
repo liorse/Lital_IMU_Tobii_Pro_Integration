@@ -107,9 +107,22 @@ def main(fixation_movie_path, movie_path, zmq_port):
                     pygame.time.set_timer(pygame.USEREVENT, wait_time)
                 else:
                     pygame.time.set_timer(pygame.USEREVENT, 0)  # Disable the timer
+                    
             if new_state != current_state:
                 current_state = new_state
-                frame_index = 1  # Reset frame index when state changes
+                frame_index = 0  # Reset frame index when state changes
+                if current_state == b"fixation_movie":
+                    frame = frames_list_fixation[frame_index % len(frames_list_fixation)]
+                elif current_state == b"mobile_movie":
+                    frame = frames_list[frame_index % len(frames_list)]
+                else:
+                    frame = black_frame
+
+                # draw the first frame of the new state
+                pygame.surfarray.blit_array(screen, frame)
+                pygame.display.update()
+
+
         except zmq.Again:
             pass
 
