@@ -19,9 +19,10 @@ def extract_frames(movie_path):
     video = np.frombuffer(out, np.uint8).reshape([-1, height, width, 3])
     return video, width, height
 
-def main(movie_path, zmq_port):
+def main(fixation_movie_path, movie_path, zmq_port):
     pygame.init()
     frames, width, height = extract_frames(movie_path)
+    fixation_frames, fixation_width, fixation_height = extract_frames(fixation_movie_path)
     
     # Get the screen dimensions
     screen_info = pygame.display.Info()
@@ -35,8 +36,14 @@ def main(movie_path, zmq_port):
     socket.setsockopt_string(zmq.SUBSCRIBE, '')
 
     running = True
-    # Rewrite the frame into frames
+    frames_list_fixation = []
+    # add frames of fixation movie to the beginning of the frames list
+    for frame in fixation_frames:
+        frame = cv2.resize(frame, (screen_width, screen_height))
+        frame = cv2.transpose(frame)
+        frames_list_fixation.append(frame)
 
+    # Rewrite the frame into frames
     frames_list = []
     for frame in frames:
         frame = cv2.resize(frame, (screen_width, screen_height))  # Resize the frame to match the screen dimensions
@@ -49,10 +56,18 @@ def main(movie_path, zmq_port):
         wait_time = int(1000 / frame_rate)  # Calculate wait time in milliseconds
         pygame.time.set_timer(pygame.USEREVENT, wait_time)
 
-    # present the first frame when the frame rate is first set to zero
-    frame = frames_list[frame_index]
-    pygame.surfarray.blit_array(screen, frame)
+    # create a black frame to present before the first frame of the movie
+    # the frame variable a black frame
+    frame.fill(0)
+    black_frame = np.copy(frame)
+    
+    # present the first frame as a black frame
+    pygame.surfarray.blit_array(screen, black_frame)
     pygame.display.update()
+    
+    #frame = frames_list[frame_index]
+    #pygame.surfarray.blit_array(screen, frame)
+    #pygame.display.update()
     frame_index = (frame_index + 1) % len(frames_list)
     
     while running:
@@ -87,4 +102,4 @@ def main(movie_path, zmq_port):
     pygame.quit()
 
 if __name__ == "__main__":
-    main(r".\media\Mobile_movie_trim2.avi", 5555)
+    main(r".\media\Fixation_resized.avi", r".\media\Mobile_movie_trim2.avi", 5555)
