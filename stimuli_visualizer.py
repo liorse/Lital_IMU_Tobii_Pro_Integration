@@ -58,10 +58,15 @@ def main(fixation_movie_path, movie_path, zmq_port):
 
     # create a black frame to present before the first frame of the movie
     # the frame variable a black frame
-    frame.fill(0)
-    black_frame = np.copy(frame)
     
+    # copy frame into black_frame
+    #black_frame = np.zeros((screen_height, screen_width, 3), dtype=np.uint8)
+    #black_frame = cv2.transpose(black_frame)  # Transpose the frame
+    #black_frame = black_frame.fill(0)
+
     # present the first frame as a black frame
+    black_frame = np.copy(frame)
+    black_frame.fill(0)
     pygame.surfarray.blit_array(screen, black_frame)
     pygame.display.update()
     
@@ -70,25 +75,31 @@ def main(fixation_movie_path, movie_path, zmq_port):
     #pygame.display.update()
     frame_index = (frame_index + 1) % len(frames_list)
     
+    current_state = "dark_screen"
+    
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.USEREVENT:
-                #start_time = pygame.time.get_ticks()
-                frame = frames_list[frame_index]
+                if current_state == b"fixation_movie":
+                    frame = frames_list_fixation[(frame_index + 1) % len(frames_list_fixation)]
+                elif current_state == b"mobile_movie":
+                    frame = frames_list[(frame_index + 1) % len(frames_list)]
+                else:
+                    frame = black_frame
+                
                 pygame.surfarray.blit_array(screen, frame)
                 pygame.display.update()
-                frame_index = (frame_index + 1) % len(frames_list)
-                #end_time = pygame.time.get_ticks()
-                #elapsed_time = end_time - start_time
-                #print(f"Frame render time: {elapsed_time} ms")
+                frame_index += 1
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
                 screen_width, screen_height = event.w, event.h
 
         try:
-            new_frame_rate = int(socket.recv_string(flags=zmq.NOBLOCK))
+            new_state, new_frame_rate = socket.recv_multipart(flags=zmq.NOBLOCK)
+            #new_frame_rate, new_state = message.split(',')
+            new_frame_rate = int(new_frame_rate)
             if new_frame_rate != frame_rate:
                 frame_rate = new_frame_rate
                 if frame_rate > 0:
@@ -96,6 +107,9 @@ def main(fixation_movie_path, movie_path, zmq_port):
                     pygame.time.set_timer(pygame.USEREVENT, wait_time)
                 else:
                     pygame.time.set_timer(pygame.USEREVENT, 0)  # Disable the timer
+            if new_state != current_state:
+                current_state = new_state
+                frame_index = 1  # Reset frame index when state changes
         except zmq.Again:
             pass
 
