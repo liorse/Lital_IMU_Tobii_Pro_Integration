@@ -43,5 +43,5 @@ if __name__ == '__main__':
     import sys
     # set the logger to info level in FanceyMicroscopeApp
     
-    app = AgencySensor(sys.argv)
+    app = AgencySensor(sys.argv, dark_mode=True)
     sys.exit(app.exec_())
