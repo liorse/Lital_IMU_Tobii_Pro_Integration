@@ -75,7 +75,9 @@ class ExperimentControllerUI(Measurement):
         capped_value = max(0, min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
         if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
             capped_value = 0
-        self.socket.send_string(str(int(capped_value)))
+        #self.socket.send_string(str(int(capped_value)))
+        self.socket.send_multipart([b"mobile_movie", str(int(capped_value)).encode('utf-8')])
+
         #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {capped_value}")
 
     def update_left_hand_sound_stimuli(self, acc_data):
