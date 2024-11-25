@@ -1,3 +1,6 @@
+import pythoncom
+pythoncom.CoInitialize()
+
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
 from UI_MetaMotionRL import MetaWearUI
