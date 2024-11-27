@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>613</width>
-    <height>429</height>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,11 +151,15 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QGroupBox" name="plot_groupBox_2">
+    <widget class="QGroupBox" name="Task_structure_group">
      <property name="title">
       <string>Task Structure</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QTableWidget" name="tableWidget"/>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

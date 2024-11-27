@@ -6,6 +6,9 @@ import numpy as np
 import time
 import zmq
 import subprocess
+from PyQt5.QtWidgets import QTableWidgetItem, QComboBox, QCheckBox
+from PyQt5.QtWidgets import QHeaderView
+
 
 class ExperimentControllerUI(Measurement):
     
@@ -79,6 +82,26 @@ class ExperimentControllerUI(Measurement):
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()
         self.ui.plot_groupBox.layout().addWidget(self.graph_layout)
+
+        # create a table to display task structure
+        self.task_table = self.ui.tableWidget
+        self.task_table.setColumnCount(4)
+        self.task_table.setHorizontalHeaderLabels(['Step Number', 'Duration [sec]', 'Limb connected to Mobile', 'Background Music'])
+        self.task_table.setRowCount(4)
+        self.task_table.setItem(0, 0, QTableWidgetItem('1'))
+        self.task_table.setItem(0, 1, QTableWidgetItem('120'))
+        self.Limb_combo = QComboBox()
+        self.Limb_combo.addItems(['Left Hand', 'Right Hand', 'Left Leg', 'Right Leg', 'None'])
+        self.task_table.setCellWidget(0, 2, self.Limb_combo)
+        self.background_music_bool = QCheckBox()
+        self.task_table.setCellWidget(0, 3, self.background_music_bool)
+
+        # Make the table always visible
+        self.task_table.horizontalHeader().setStretchLastSection(True)
+        self.task_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.task_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+   
 
         # connect to data update signal
         self.ui.start_stimuli_pushButton.clicked.connect(self.start)
