@@ -48,13 +48,6 @@ class MobileControllerUI(Measurement):
         self.settings.New('min_acceleration', dtype=float, unit='g', initial=0.0, vmin=0.0, vmax=0.99)
 
         self.settings.New(name='limb_connected_to_mobile', initial= ('Left Hand', "_left_hand"), dtype=str, ro=False, choices= [ ('Left Hand', "_left_hand"), ('Right Hand', "_right_hand"), ('Left Leg', "_left_leg"), ('Right Leg', "_right_leg"), ('None', "_none")])
-        # participants settings
-        self.settings.New('participant', dtype=int, unit='', initial=5000, vmin=5000, vmax=5999)
-        self.settings.New('age', dtype=int, unit='months', initial=4, vmin=0, vmax=96)
-        self.settings.New('task_name', dtype=str, initial='Mobile')
-        self.settings.New('trial_number', dtype=int, initial=1 ,vmin=1, vmax=100)
-        self.settings.New('task_ID', dtype=str, initial='')
-        
         self.settings.limb_connected_to_mobile.connect_to_hardware(write_func=self.set_limb_mobile_connection)
         
         # Define how often to update display during a run
