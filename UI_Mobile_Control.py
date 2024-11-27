@@ -25,7 +25,7 @@ class MobileControllerUI(Measurement):
         # This file can be edited graphically with Qt Creator
         # sibling_path function allows python to find a file in the same folder
         # as this python module
-        self.ui_filename = sibling_path(__file__, "Experiment.ui")
+        self.ui_filename = sibling_path(__file__, "Mobile.ui")
         
         #Load ui file and convert it to a live QWidget of the user interface
         self.ui = load_qt_ui_file(self.ui_filename)
@@ -44,7 +44,9 @@ class MobileControllerUI(Measurement):
         self.settings.New('max_sound_speed', dtype=float, unit='', initial=2.0, vmin=1.0, vmax=5.0)
         self.settings.New('min_sound_volume', dtype=float, unit='', initial=0.1, vmin=0.1, vmax=1.5)
         self.settings.New('max_sound_volume', dtype=float, unit='', initial=1.5, vmin=0.1, vmax=1.5)
-        
+        self.settings.New('max_acceleration', dtype=float, unit='g', initial=1.0, vmin=1.0, vmax=8)
+        self.settings.New('min_acceleration', dtype=float, unit='g', initial=0.0, vmin=0.0, vmax=0.99)
+
         self.settings.New(name='limb_connected_to_mobile', initial= ('Left Hand', "_left_hand"), dtype=str, ro=False, choices= [ ('Left Hand', "_left_hand"), ('Right Hand', "_right_hand"), ('Left Leg', "_left_leg"), ('Right Leg', "_right_leg"), ('None', "_none")])
         # participants settings
         self.settings.New('participant', dtype=int, unit='', initial=5000, vmin=5000, vmax=5999)
@@ -110,20 +112,36 @@ class MobileControllerUI(Measurement):
 
     def update_mobile_with_acc(self, acc_data):
         # control the speed of the movie based on the acceleration of the left hand
-        mapped_value = int(self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_movie_speed_spinBox.value(), self.ui.max_movie_speed_spinBox.value()))
+        mapped_value = int(self.map_value(acc_data.acceleration, 
+                                          self.ui.min_acceleration_spinBox.value(), 
+                                          self.ui.max_acceleration_spinBox.value(), 
+                                          self.ui.min_movie_speed_spinBox.value(), 
+                                          self.ui.max_movie_speed_spinBox.value()))
         capped_value = max(0, min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
         if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
             capped_value = 0
         #self.socket.send_string(str(int(capped_value)))
         if hasattr(self, 'socket'):
-            self.socket.send_multipart([b"mobile_movie", str(int(capped_value)).encode('utf-8')])
+            try:
+                self.socket.send_multipart([b"mobile_movie", str(int(capped_value)).encode('utf-8')])
+            except zmq.error.ZMQError as e:
+                pass
 
         #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {capped_value}")
 
     def update_sound_with_acc(self, acc_data):
         # control the speed and volume of the sound based on the acceleration of the left hand
-        mapped_value_sound_speed = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_speed_spinBox.value(), self.ui.max_sound_speed_spinBox.value())
-        mapped_value_sound_volume = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_volume_spinBox.value(), self.ui.max_sound_volume_spinBox.value())
+        mapped_value_sound_speed = self.map_value(acc_data.acceleration, 
+                                                  self.ui.min_acceleration_spinBox.value(), 
+                                                  self.ui.max_acceleration_spinBox.value(), 
+                                                  self.ui.min_sound_speed_spinBox.value(), 
+                                                  self.ui.max_sound_speed_spinBox.value())
+        mapped_value_sound_volume = self.map_value(acc_data.acceleration, 
+                                                   self.ui.min_acceleration_spinBox.value(), 
+                                                   self.ui.max_acceleration_spinBox.value(), 
+                                                   self.ui.min_sound_volume_spinBox.value(), 
+                                                   self.ui.max_sound_volume_spinBox.value())
+        
         if mapped_value_sound_speed > self.ui.max_sound_speed_spinBox.value():
             mapped_value_sound_speed = self.ui.max_sound_speed_spinBox.value()
         if mapped_value_sound_volume > self.ui.max_sound_volume_spinBox.value():
@@ -141,7 +159,10 @@ class MobileControllerUI(Measurement):
         if self.mapped_value_sound_speed != mapped_value_sound_speed and self.mapped_value_sound_volume != mapped_value_sound_volume:
             message = f"{mapped_value_sound_speed},{mapped_value_sound_volume}"
             if hasattr(self, 'socket_sound'):
-                self.socket_sound.send_string(message)
+                try:
+                    self.socket_sound.send_string(message)
+                except zmq.error.ZMQError as e:
+                    pass
             self.mapped_value_sound_speed = mapped_value_sound_speed
             self.mapped_value_sound_volume = mapped_value_sound_volume
             #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value Sound Speed: {mapped_value_sound_speed}, Mapped Value Sound Volume: {mapped_value_sound_volume}")
@@ -152,14 +173,16 @@ class MobileControllerUI(Measurement):
         This is the place to make all graphical interface initializations,
         build plots, etc.
         """
-        
-
         self.settings.save_h5.connect_to_widget(self.ui.save_h5_checkBox)
-        self.settings.limb_connected_to_mobile.connect_to_widget(self.ui.Limb_connected_to_mobile_ComboBox)
 
+        # Set up limb connected to mobile
+        self.settings.limb_connected_to_mobile.connect_to_widget(self.ui.Limb_connected_to_mobile_ComboBox)
         self.current_limb_connected_to_mobile = "_left_hand"
         self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
         self.LeftHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
+
+        self.settings.max_acceleration.connect_to_widget(self.ui.max_acceleration_spinBox)
+        self.settings.min_acceleration.connect_to_widget(self.ui.min_acceleration_spinBox)
 
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()

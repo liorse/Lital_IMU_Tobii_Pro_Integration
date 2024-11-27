@@ -26,21 +26,28 @@
       <string>Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="7" column="0">
+      <item row="2" column="0">
+       <widget class="QPushButton" name="stop_stimuli_pushButton">
+        <property name="text">
+         <string>Stop Stimuli</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
        <widget class="QCheckBox" name="save_h5_checkBox">
         <property name="text">
          <string>Save H5</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="framerate_label_label_2">
+      <item row="4" column="4">
+       <widget class="QLabel" name="framerate_label_label_9">
         <property name="text">
-         <string>sound speed</string>
+         <string>Min Movie Speed</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="7" column="1">
        <widget class="QDoubleSpinBox" name="sound_volume_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -56,67 +63,14 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="3">
-       <widget class="QLabel" name="framerate_label_label_9">
+      <item row="7" column="0">
+       <widget class="QLabel" name="framerate_label_label_3">
         <property name="text">
-         <string>Min Movie Speed</string>
+         <string>sound volume</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
-       <widget class="QLabel" name="framerate_label_label_7">
-        <property name="text">
-         <string>Min Sound Volume</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="framerate_label_label_5">
-        <property name="text">
-         <string>Max Sound Speed</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QDoubleSpinBox" name="min_acceleration_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>0.500000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="framerate_label_label_13">
-        <property name="text">
-         <string>Max Acceleration</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QDoubleSpinBox" name="fps_spinBox">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>400.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
+      <item row="2" column="5">
        <widget class="QDoubleSpinBox" name="min_sound_volume_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -135,104 +89,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="2">
-       <widget class="QComboBox" name="Limb_connected_to_mobile_ComboBox"/>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="framerate_label_label_12">
-        <property name="text">
-         <string>Min Acceleration</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QDoubleSpinBox" name="max_sound_speed_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>5.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>2.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="framerate_label_label_4">
-        <property name="text">
-         <string>Min Sound Speed</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QLabel" name="framerate_label_label_8">
-        <property name="text">
-         <string>Max Sound Volume</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="framerate_label_label">
-        <property name="text">
-         <string>FrameRate [fps]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QPushButton" name="stop_stimuli_pushButton">
-        <property name="text">
-         <string>Stop Stimuli</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QLabel" name="framerate_label_label_10">
-        <property name="text">
-         <string>Max Movie Speed</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="start_stimuli_pushButton">
-        <property name="text">
-         <string>Start Stimuli</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="framerate_label_label_3">
-        <property name="text">
-         <string>sound volume</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="4">
-       <widget class="QDoubleSpinBox" name="acceleration_threshold_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>16.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.600000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
+      <item row="6" column="5">
        <widget class="QDoubleSpinBox" name="max_sound_volume_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -251,40 +108,24 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
-       <widget class="QLabel" name="framerate_label_label_11">
-        <property name="text">
-         <string>Limb Connected to Mobile</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="3">
-       <widget class="QLabel" name="framerate_label_label_6">
-        <property name="text">
-         <string>Acceleration Threshold</string>
-        </property>
-       </widget>
+      <item row="8" column="3">
+       <widget class="QComboBox" name="Limb_connected_to_mobile_ComboBox"/>
       </item>
       <item row="6" column="4">
-       <widget class="QDoubleSpinBox" name="max_movie_speed_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>50.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>160.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>150.000000000000000</double>
+       <widget class="QLabel" name="framerate_label_label_8">
+        <property name="text">
+         <string>Max Sound Volume</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="1" column="4">
+       <widget class="QLabel" name="framerate_label_label_4">
+        <property name="text">
+         <string>Min Sound Speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
        <widget class="QDoubleSpinBox" name="sound_speed_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -300,7 +141,40 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="4">
+      <item row="2" column="4">
+       <widget class="QLabel" name="framerate_label_label_7">
+        <property name="text">
+         <string>Min Sound Volume</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="framerate_label_label_2">
+        <property name="text">
+         <string>sound speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QDoubleSpinBox" name="min_acceleration_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>0.500000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="5">
        <widget class="QDoubleSpinBox" name="min_movie_speed_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -319,7 +193,73 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
+      <item row="7" column="4">
+       <widget class="QLabel" name="framerate_label_label_10">
+        <property name="text">
+         <string>Max Movie Speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="start_stimuli_pushButton">
+        <property name="text">
+         <string>Start Stimuli</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="5">
+       <widget class="QDoubleSpinBox" name="acceleration_threshold_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>16.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.600000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QLabel" name="framerate_label_label_11">
+        <property name="text">
+         <string>Limb Connected to Mobile</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="4">
+       <widget class="QLabel" name="framerate_label_label_6">
+        <property name="text">
+         <string>Acceleration Threshold</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="5">
+       <widget class="QDoubleSpinBox" name="max_movie_speed_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>50.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>160.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>150.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
        <widget class="QDoubleSpinBox" name="min_sound_speed_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -338,7 +278,47 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="2">
+      <item row="1" column="2">
+       <widget class="QLabel" name="framerate_label_label_12">
+        <property name="text">
+         <string>Min Acceleration</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="5">
+       <widget class="QDoubleSpinBox" name="max_sound_speed_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>5.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>2.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QLabel" name="framerate_label_label_5">
+        <property name="text">
+         <string>Max Sound Speed</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="framerate_label_label_13">
+        <property name="text">
+         <string>Max Acceleration</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
        <widget class="QDoubleSpinBox" name="max_acceleration_spinBox">
         <property name="decimals">
          <number>1</number>
@@ -354,6 +334,26 @@
         </property>
         <property name="value">
          <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="framerate_label_label">
+        <property name="text">
+         <string>FrameRate [fps]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDoubleSpinBox" name="fps_spinBox">
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>400.000000000000000</double>
         </property>
        </widget>
       </item>
