@@ -37,7 +37,7 @@ class MetaWearUI(Measurement):
     
     # this is the name of the measurement that ScopeFoundry uses 
     # when displaying your measurement and saving data related to it    
-    name = "MetaWearControl"
+    name = "MetaWear Sensors Control"
     
     def setup(self):
         """

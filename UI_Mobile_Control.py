@@ -8,11 +8,11 @@ import zmq
 import subprocess
 
 
-class ExperimentControllerUI(Measurement):
+class MobileControllerUI(Measurement):
     
     # this is the name of the measurement that ScopeFoundry uses 
     # when displaying your measurement and saving data related to it    
-    name = "ExperimentController"
+    name = "Mobile Control"
     
     def setup(self):
         """

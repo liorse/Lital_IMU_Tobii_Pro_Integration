@@ -4,7 +4,7 @@ pythoncom.CoInitialize()
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
 from UI_MetaMotionRL import MetaWearUI
-from UI_Experiment_controller import ExperimentControllerUI
+from UI_Mobile_Control import MobileControllerUI
 
 class AgencySensor(BaseMicroscopeApp):
 
@@ -28,7 +28,8 @@ class AgencySensor(BaseMicroscopeApp):
         #Add measurement components
         print("Create Measurement objects")
         self.add_measurement(MetaWearUI(self))
-        self.add_measurement(ExperimentControllerUI(self))
+        self.add_measurement(MobileControllerUI(self))
+        #self.add_measurement(ExperimentControllerUI(self))
         
         # Connect to custom gui
         
