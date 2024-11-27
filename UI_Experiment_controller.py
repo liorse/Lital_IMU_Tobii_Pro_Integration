@@ -45,13 +45,16 @@ class ExperimentControllerUI(Measurement):
         self.settings.New('min_sound_volume', dtype=float, unit='', initial=0.1, vmin=0.1, vmax=1.5)
         self.settings.New('max_sound_volume', dtype=float, unit='', initial=1.5, vmin=0.1, vmax=1.5)
         
+        self.settings.New(name='limb_connected_to_mobile', initial= ('Left Hand', "_left_hand"), dtype=str, ro=False, choices= [ ('Left Hand', "_left_hand"), ('Right Hand', "_right_hand"), ('Left Leg', "_left_leg"), ('Right Leg', "_right_leg"), ('None', "_none")])
         # participants settings
         self.settings.New('participant', dtype=int, unit='', initial=5000, vmin=5000, vmax=5999)
         self.settings.New('age', dtype=int, unit='months', initial=4, vmin=0, vmax=96)
         self.settings.New('task_name', dtype=str, initial='Mobile')
         self.settings.New('trial_number', dtype=int, initial=1 ,vmin=1, vmax=100)
         self.settings.New('task_ID', dtype=str, initial='')
-
+        
+        self.settings.limb_connected_to_mobile.connect_to_hardware(write_func=self.set_limb_mobile_connection)
+        
         # Define how often to update display during a run
         self.display_update_period = 1/60
         
@@ -66,21 +69,58 @@ class ExperimentControllerUI(Measurement):
         self.mapped_value_sound_speed = 0
         self.mapped_value_sound_volume = 0
 
+        
+
+    def set_limb_mobile_connection(self, limb_connected_to_mobile):
+
+        if self.current_limb_connected_to_mobile == "_left_hand":
+            self.LeftHandMeta.acc_data_updated.disconnect(self.update_mobile_with_acc)
+            self.LeftHandMeta.acc_data_updated.disconnect(self.update_sound_with_acc)
+        elif self.current_limb_connected_to_mobile == "_right_hand":
+            self.RightHandMeta.acc_data_updated.disconnect(self.update_mobile_with_acc)
+            self.RightHandMeta.acc_data_updated.disconnect(self.update_sound_with_acc)
+        elif self.current_limb_connected_to_mobile == "_left_leg":
+            self.LeftLegMeta.acc_data_updated.disconnect(self.update_mobile_with_acc)
+            self.LeftLegMeta.acc_data_updated.disconnect(self.update_sound_with_acc)
+        elif self.current_limb_connected_to_mobile == "_right_leg":
+            self.RightLegMeta.acc_data_updated.disconnect(self.update_mobile_with_acc)
+            self.RightLegMeta.acc_data_updated.disconnect(self.update_sound_with_acc)
+        elif self.current_limb_connected_to_mobile == "_none":
+            pass
+
+        if limb_connected_to_mobile == "_left_hand":
+            self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
+            self.LeftHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
+        elif limb_connected_to_mobile == "_right_hand":
+            self.RightHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
+            self.RightHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
+        elif limb_connected_to_mobile == "_left_leg":
+            self.LeftLegMeta.acc_data_updated.connect(self.update_mobile_with_acc)
+            self.LeftLegMeta.acc_data_updated.connect(self.update_sound_with_acc)
+        elif limb_connected_to_mobile == "_right_leg":
+            self.RightLegMeta.acc_data_updated.connect(self.update_mobile_with_acc)
+            self.RightLegMeta.acc_data_updated.connect(self.update_sound_with_acc)
+        elif limb_connected_to_mobile == "_none":
+            pass
+
+        self.current_limb_connected_to_mobile = limb_connected_to_mobile
+    
     def map_value(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-    def update_left_hand_data(self, acc_data):
+    def update_mobile_with_acc(self, acc_data):
         # control the speed of the movie based on the acceleration of the left hand
         mapped_value = int(self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_movie_speed_spinBox.value(), self.ui.max_movie_speed_spinBox.value()))
         capped_value = max(0, min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
         if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
             capped_value = 0
         #self.socket.send_string(str(int(capped_value)))
-        self.socket.send_multipart([b"mobile_movie", str(int(capped_value)).encode('utf-8')])
+        if hasattr(self, 'socket'):
+            self.socket.send_multipart([b"mobile_movie", str(int(capped_value)).encode('utf-8')])
 
         #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {capped_value}")
 
-    def update_left_hand_sound_stimuli(self, acc_data):
+    def update_sound_with_acc(self, acc_data):
         # control the speed and volume of the sound based on the acceleration of the left hand
         mapped_value_sound_speed = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_speed_spinBox.value(), self.ui.max_sound_speed_spinBox.value())
         mapped_value_sound_volume = self.map_value(acc_data.acceleration, 0, 1.0, self.ui.min_sound_volume_spinBox.value(), self.ui.max_sound_volume_spinBox.value())
@@ -100,7 +140,8 @@ class ExperimentControllerUI(Measurement):
         
         if self.mapped_value_sound_speed != mapped_value_sound_speed and self.mapped_value_sound_volume != mapped_value_sound_volume:
             message = f"{mapped_value_sound_speed},{mapped_value_sound_volume}"
-            self.socket_sound.send_string(message)
+            if hasattr(self, 'socket_sound'):
+                self.socket_sound.send_string(message)
             self.mapped_value_sound_speed = mapped_value_sound_speed
             self.mapped_value_sound_volume = mapped_value_sound_volume
             #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value Sound Speed: {mapped_value_sound_speed}, Mapped Value Sound Volume: {mapped_value_sound_volume}")
@@ -112,8 +153,14 @@ class ExperimentControllerUI(Measurement):
         build plots, etc.
         """
         
+
         self.settings.save_h5.connect_to_widget(self.ui.save_h5_checkBox)
-       
+        self.settings.limb_connected_to_mobile.connect_to_widget(self.ui.Limb_connected_to_mobile_ComboBox)
+
+        self.current_limb_connected_to_mobile = "_left_hand"
+        self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
+        self.LeftHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
+
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()
         self.ui.plot_groupBox.layout().addWidget(self.graph_layout)
@@ -157,6 +204,8 @@ class ExperimentControllerUI(Measurement):
         It should not update the graphical interface directly, and should only
         focus on data acquisition.
         """
+        
+
         # first, create a data file
         if self.settings['save_h5']:
             # if enabled will create an HDF5 file with the plotted data
@@ -193,8 +242,8 @@ class ExperimentControllerUI(Measurement):
         # run the stimuli sound in a seperate process using the shell
         self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py"])
 
-        self.LeftHandMeta.acc_data_updated.connect(self.update_left_hand_data)
-        self.LeftHandMeta.acc_data_updated.connect(self.update_left_hand_sound_stimuli)
+        #self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
+        #self.LeftHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
 
         try:
             i = 0
@@ -237,8 +286,8 @@ class ExperimentControllerUI(Measurement):
             print("close down stimuli sound")
             self.stimuli_sound_process.terminate()
 
-            self.LeftHandMeta.acc_data_updated.disconnect(self.update_left_hand_data)
-            self.LeftHandMeta.acc_data_updated.disconnect(self.update_left_hand_sound_stimuli)
+            #self.LeftHandMeta.acc_data_updated.disconnect(self.update_mobile_with_acc)
+            #self.LeftHandMeta.acc_data_updated.disconnect(self.update_sound_with_acc)
             print("Experiment is finished")
             print("close down zmq server visual")
             self.socket.close()

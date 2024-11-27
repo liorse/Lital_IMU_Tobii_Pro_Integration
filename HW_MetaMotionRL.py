@@ -46,7 +46,7 @@ class MetaMotionRLHW(HardwareComponent):
         # 3. choose the range of the accelerometer in the fusion algorithm
         self.settings.New(name='MAC', initial=self.MAC, dtype=str, ro=False)
         self.settings.New(name='start_streaming', initial=False, dtype=bool, ro=False)
-        self.settings.New(name='acceleration_range', initial= ('2G', "_2G"), dtype=str, ro=False, choices= [ ('2G', "_2G"), ('4G', "_4G"), ('8G', "_8G"), ('16G', "_16G") ])
+        self.settings.New(name='acceleration_range', initial= ('8G', "_8G"), dtype=str, ro=False, choices= [ ('2G', "_2G"), ('4G', "_4G"), ('8G', "_8G"), ('16G', "_16G") ])
         self.settings.New(name='data_rate', initial=21, dtype=int, ro=False, vmin = 1, vmax=200)
         self.settings.New(name='data_read_samples_per_second', initial=0, dtype=int, ro=True)
         self.settings.New(name='battery_charge', initial=0, dtype=int, ro=True)
