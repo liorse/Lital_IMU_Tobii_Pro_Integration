@@ -144,13 +144,6 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="2">
-       <widget class="QCheckBox" name="save_h5_checkBox">
-        <property name="text">
-         <string>Save H5</string>
-        </property>
-       </widget>
-      </item>
       <item row="6" column="4">
        <widget class="QDoubleSpinBox" name="max_movie_speed_spinBox">
         <property name="decimals">
@@ -222,24 +215,10 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
-       <widget class="QCheckBox" name="RightLegConnectCheckBox">
-        <property name="text">
-         <string>Right leg Connect</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="0">
        <widget class="QPushButton" name="stop_stimuli_pushButton">
         <property name="text">
          <string>Stop Stimuli</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QPushButton" name="Scan_metawear_pushButton">
-        <property name="text">
-         <string>Scan for MetaWear</string>
         </property>
        </widget>
       </item>
@@ -309,13 +288,20 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="7" column="2">
        <widget class="QComboBox" name="Limb_connected_to_mobile_ComboBox"/>
       </item>
-      <item row="4" column="0">
+      <item row="7" column="1">
        <widget class="QLabel" name="framerate_label_label_11">
         <property name="text">
          <string>Limb Connected to Mobile</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QCheckBox" name="save_h5_checkBox">
+        <property name="text">
+         <string>Save H5</string>
         </property>
        </widget>
       </item>

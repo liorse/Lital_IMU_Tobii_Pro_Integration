@@ -185,10 +185,12 @@ class ExperimentControllerUI(Measurement):
 
     def update_sound_volume_and_speed(self):
         message = f"{self.ui.sound_speed_spinBox.value()},{self.ui.sound_volume_spinBox.value()}"
-        self.socket_sound.send_string(message)
+        if hasattr(self, 'socket_sound'):
+            self.socket_sound.send_string(message)
 
     def update_fps(self):
-        self.socket.send_string(str(int(self.ui.fps_spinBox.value())))
+         if hasattr(self, 'socket'):
+            self.socket.send_multipart([b"mobile_movie", str(int(self.ui.fps_spinBox.value())).encode('utf-8')])
 
     def update_display(self):
         """
