@@ -6,21 +6,21 @@ tasks:
     background_music: false
   - step_number: 2
     step_description: "Base Line"
-    step_duration_sec: 150
+    step_duration_sec: 3
     limb_connected_to_mobile: "None"
     background_music: true
   - step_number: 3
     step_description: "Connect"
-    step_duration_sec: 180
+    step_duration_sec: 5
     limb_connected_to_mobile: "Left Hand"
     background_music: false
   - step_number: 4
     step_description: "Disconnect"
-    step_duration_sec: 200
+    step_duration_sec: 5
     limb_connected_to_mobile: "None"
     background_music: false
   - step_number: 5
     step_description: "Reconnect"
-    step_duration_sec: 220
+    step_duration_sec: 5
     limb_connected_to_mobile: "Right Leg"
     background_music: false

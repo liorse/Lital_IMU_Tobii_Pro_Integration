@@ -279,8 +279,8 @@ class ExperimentControllerUI(Measurement):
         self.task_table_model.setHorizontalHeaderLabels(["Step Number", "Step Description","Step Duration [sec]", "Limb Connected to Mobile", "Background Music"])
         
         # add sample data
-        for row in range(5):
-            for col in range(5):
+        for row in range(len(self.step_structure_data)):
+            for col in range(len(self.step_structure_data[row])):
                 if isinstance(self.step_structure_data[row][col], bool):
                     item = QStandardItem()
                     item.setCheckable(True)
