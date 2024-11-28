@@ -378,7 +378,7 @@ class ExperimentControllerUI(Measurement):
 
     def step_timer(self):
         self.timer_expired = True
-        self.scheduler.shutdown()
+        
 
     def run(self):
         """
@@ -523,6 +523,7 @@ class ExperimentControllerUI(Measurement):
 
                 # if the timer expired, move to the next step
                 if self.timer_expired:
+                    self.scheduler.shutdown()
                     self.current_step += 1
                     self.timer_expired = False
                     if self.current_step >= len(self.step_structure_data):
