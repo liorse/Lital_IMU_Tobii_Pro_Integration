@@ -536,6 +536,10 @@ class ExperimentControllerUI(Measurement):
                     pygame.mixer.music.load('./media/bingbong.wav')
                     pygame.mixer.music.play()
 
+                    # wait until sound is finished
+                    while pygame.mixer.music.get_busy():
+                        pygame.time.Clock().tick(10)
+
                     if self.current_step >= len(self.step_structure_data):
                         self.interrupt_measurement_called = True
                         # this will break the run
@@ -553,14 +557,16 @@ class ExperimentControllerUI(Measurement):
             print("Experiment is finished")
             print("stop streaming sensor data")
             self.metawear_ui.interrupt()
+
+            print("disconnect all limbs from mobile")
+            self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText("None")
+
             print("show dark screen on mobile")
             try:
                 self.mobile_ui.socket.send_multipart([b"dark", b"0"])
             except zmq.error.ZMQError as e:
                 pass
 
-            print("disconnect all limbs from mobile")
-            self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText("None")
             # Stop the audio server from playing the mobile music
             message = f"{0},{0.1}" # sound speed , sound volume
             if hasattr(self.mobile_ui, 'socket_sound'):
