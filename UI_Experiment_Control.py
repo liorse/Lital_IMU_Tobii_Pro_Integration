@@ -7,8 +7,167 @@ import time
 import zmq
 import subprocess
 from PyQt5.QtWidgets import QTableWidgetItem, QComboBox, QCheckBox
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QHeaderView
 
+from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
+from PyQt5.QtWidgets import (
+    QComboBox, QCheckBox, QWidget, QStyleOptionComboBox, QStyleOptionButton, QStyle,
+    QStyledItemDelegate, QTableView, QVBoxLayout, QHeaderView, QApplication, QSizePolicy
+)
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+# add QEvent to the list of imports
+from PyQt5.QtCore import QEvent
+from typing import Optional
+
+# add relevent imports
+from PyQt5.QtCore import QRect, QSize, QEvent
+from PyQt5.QtCore import QAbstractItemModel, QEvent, QModelIndex
+from PyQt5.QtGui import QPainter, QMouseEvent
+from PyQt5.QtWidgets import QStyleOptionViewItem
+
+
+class ComboBoxDelegate(QStyledItemDelegate):
+    def __init__(self, items, parent=None):
+        super().__init__(parent)
+        self.items = items
+
+    def createEditor(self, parent, option, index):
+        combo = QComboBox(parent)
+        combo.addItems(self.items)
+        combo.setStyleSheet("QComboBox { text-align: center; }")
+        return combo
+
+    def setEditorData(self, editor, index):
+        value = index.model().data(index, Qt.EditRole)
+        if value:
+            editor.setCurrentText(value)
+        editor.setStyleSheet("QComboBox { text-align: center; }")
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, editor.currentText(), Qt.EditRole)
+
+'''
+class CheckBoxDelegate(QStyledItemDelegate):
+    def createEditor(self, parent, option, index):
+        # No editor for checkboxes
+        return None
+
+    def paint(self, painter, option, index):
+        pass
+        
+        # Get the checkbox state from the model
+        value = index.data(Qt.CheckStateRole)
+
+        # Create and configure a QStyleOptionButton for the checkbox
+        checkbox_style = QStyleOptionButton()
+        checkbox_style.state = QStyle.State_Enabled
+        checkbox_style.state |= QStyle.State_On if value == Qt.Checked else QStyle.State_Off
+
+        # Determine the size of the checkbox
+        checkbox_size = QApplication.style().subElementRect(QStyle.SE_CheckBoxIndicator, checkbox_style).size()
+
+        # Center the checkbox within the cell
+        checkbox_rect = option.rect
+        checkbox_rect.setWidth(checkbox_size.width())
+        checkbox_rect.setHeight(checkbox_size.height())
+        checkbox_rect.moveCenter(option.rect.center())
+
+        checkbox_style.rect = checkbox_rect
+
+        # Draw the checkbox
+        QApplication.style().drawControl(QStyle.CE_CheckBox, checkbox_style, painter)
+        
+
+    def editorEvent(self, event, model, option, index):
+        if event.type() == QEvent.MouseButtonRelease:
+            current_value = index.data(Qt.CheckStateRole)
+            new_value = Qt.Unchecked if current_value == Qt.Checked else Qt.Checked
+            model.setData(index, new_value, Qt.CheckStateRole)
+            return True
+        return False
+'''
+class CheckBoxDelegate(QStyledItemDelegate):
+
+    def __init__(self, alignment: Qt.Alignment, parent: Optional[QWidget] = None):
+        super().__init__(parent)
+        self.alignment: Qt.Alignment = alignment
+        self.parent = parent
+
+        if self.parent:
+            self.style = self.parent.style()
+        else:
+            self.style = QApplication.style()
+
+    def editorEvent(self, event: QMouseEvent, model: QAbstractItemModel, option: QStyleOptionViewItem,
+                    index: QModelIndex) -> bool:
+        checkbox_data = index.data(Qt.CheckStateRole)
+        flags = index.flags()
+        if not (flags & Qt.ItemIsUserCheckable) or not (flags & Qt.ItemIsEnabled) or checkbox_data is None:
+            return False
+        else:
+            if event.type() == QEvent.MouseButtonRelease:
+                mouseover_checkbox: bool = self.get_checkbox_rect(option).contains(event.pos())
+                if not mouseover_checkbox:
+                    return False
+            elif event.type() == QEvent.KeyPress and event.key() != Qt.Key_Space:
+                return False
+            else:
+                return False
+            if checkbox_data == Qt.Checked:
+                checkbox_toggled: int = Qt.Unchecked
+            else:
+                checkbox_toggled: int = Qt.Checked
+            return model.setData(index, checkbox_toggled, Qt.CheckStateRole)
+
+    def get_checkbox_rect(self, option: QStyleOptionViewItem) -> QRect:
+        widget = option.widget
+        if widget:
+            style = widget.style()
+        else:
+            style = self.style()
+        checkbox_size: QSize = style.subElementRect(QStyle.SE_CheckBoxIndicator, option, widget).size()
+        return QStyle.alignedRect(option.direction, Qt.AlignCenter, checkbox_size, option.rect)
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex):
+        try:
+            self.initStyleOption(option, index)
+            painter.save()
+
+            flags: Qt.ItemFlags = index.model().flags(index)
+            widget: Optional[QWidget] = option.widget
+            checkbox_data = index.data(Qt.CheckStateRole)
+            if widget:
+                style = widget.style()
+            else:
+                style = self.style()
+
+            if option.HasCheckIndicator and checkbox_data is not None:
+                option_checkbox = option
+                self.initStyleOption(option_checkbox, index)
+                option_checkbox.state = option_checkbox.state & ~QStyle.State_HasFocus
+                option_checkbox.features = option_checkbox.features & ~QStyleOptionViewItem.HasDisplay
+                option_checkbox.features = option_checkbox.features & ~QStyleOptionViewItem.HasDecoration
+                option_checkbox.features = option_checkbox.features & ~QStyleOptionViewItem.HasCheckIndicator
+                style.drawControl(QStyle.CE_ItemViewItem, option_checkbox, painter, widget)
+
+                # Then just draw the a checkbox centred in the cell
+                option_checkbox.rect = self.get_checkbox_rect(option_checkbox)
+                if option_checkbox.checkState == Qt.Checked:
+                    state_flag = QStyle.State_On
+                else:
+                    state_flag = QStyle.State_Off
+
+                option_checkbox.state = option_checkbox.state | state_flag
+                style.drawPrimitive(QStyle.PE_IndicatorViewItemCheck, option_checkbox, painter, widget)
+
+            else:
+                QStyledItemDelegate.paint(self, painter, option, index)
+        
+            painter.restore()
+
+        except Exception as e:
+            print(repr(e))
 
 class ExperimentControllerUI(Measurement):
     
@@ -84,25 +243,74 @@ class ExperimentControllerUI(Measurement):
         self.ui.plot_groupBox.layout().addWidget(self.graph_layout)
 
         # create a table to display task structure
-        self.task_table = self.ui.tableWidget
-        self.task_table.setColumnCount(4)
-        self.task_table.setHorizontalHeaderLabels(['Step Number', 'Duration [sec]', 'Limb connected to Mobile', 'Background Music'])
-        self.task_table.setRowCount(4)
-        self.task_table.setItem(0, 0, QTableWidgetItem('1'))
-        self.task_table.setItem(0, 1, QTableWidgetItem('120'))
-        self.Limb_combo = QComboBox()
-        self.Limb_combo.addItems(['Left Hand', 'Right Hand', 'Left Leg', 'Right Leg', 'None'])
-        self.task_table.setCellWidget(0, 2, self.Limb_combo)
-        self.background_music_bool = QCheckBox()
-        self.task_table.setCellWidget(0, 3, self.background_music_bool)
+        # Sample data
+        step_structure_data = [
+            [1, "Fixation", 2, "None", False],
+            [2, "Base Line", 150, "None", True],
+            [3, "Connect", 180, "Left Hand", False],
+            [4, "Disconnect",200, "None", False],
+            [5, "Reconnect", 220, "Right Leg", False]   
+        ]
+        
+        # Create the model
+        # Create TableView and Model
+        self.task_table = QTableView()
+        self.task_table_model = QStandardItemModel(4, 5)  # 5 rows, 3 columns
+        self.task_table_model.setHorizontalHeaderLabels(["Step Number", "Step Description","Step Duration [sec]", "Limb Connected to Mobile", "Background Music"])
+        
+        # add sample data
+        for row in range(5):
+            for col in range(5):
+                if isinstance(step_structure_data[row][col], bool):
+                    item = QStandardItem()
+                    item.setCheckable(True)
+                    item.setCheckState(Qt.Checked if step_structure_data[row][col] else Qt.Unchecked)
+                    # set check box alignment to center, it is not text alignment
+                    item.setTextAlignment(Qt.AlignCenter)
+                else:
+                    item = QStandardItem(str(step_structure_data[row][col]))
+                item.setTextAlignment(Qt.AlignCenter)
+                self.task_table_model.setItem(row, col, item)
 
-        # Make the table always visible
-        self.task_table.horizontalHeader().setStretchLastSection(True)
+        self.task_table.setModel(self.task_table_model)
+
+        self.task_table.setItemDelegateForColumn(1, ComboBoxDelegate(["Fixation", "Base Line", "Connect", "Disconnect", "Reconnect"], self))
+        self.task_table.setItemDelegateForColumn(3, ComboBoxDelegate(["Left Hand", "Right Hand", "Left Leg", "Right Leg", "None"], self))
+        self.task_table.setItemDelegateForColumn(4, CheckBoxDelegate(Qt.AlignCenter))
+
+        def adjust_table_size(table_view, model):
+            table_view.resizeColumnsToContents()
+            table_view.resizeRowsToContents()
+
+            # Calculate the width and height required to show all rows and columns
+            total_width = sum([table_view.columnWidth(c) for c in range(model.columnCount())])
+            total_height = sum([table_view.rowHeight(r) for r in range(model.rowCount())])
+
+            # Add header sizes
+            total_width += table_view.verticalHeader().width()
+            total_height += table_view.horizontalHeader().height()
+
+            # Apply the calculated size
+            table_view.setFixedSize(total_width, total_height)
+
+        
+        adjust_table_size(self.task_table, self.task_table_model)
+        # Set the table view to stretch
         self.task_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.task_table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # remove the autonumbering of rows
+        self.task_table.verticalHeader().setVisible(False)
+     
+     
+        # Add the table to the existing layout of Task_structure_group
+        task_structure_layout = self.ui.Task_structure_group.layout()
+        if task_structure_layout is None:
+            task_structure_layout = QVBoxLayout()
+            self.ui.Task_structure_group.setLayout(task_structure_layout)
+        task_structure_layout.addWidget(self.task_table)
 
-   
-
+        # set the width of the columns to fit the content of the headers
+        self.task_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        
         # connect to data update signal
         self.ui.start_stimuli_pushButton.clicked.connect(self.start)
         self.ui.stop_stimuli_pushButton.clicked.connect(self.interrupt)
