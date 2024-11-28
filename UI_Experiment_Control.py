@@ -186,6 +186,10 @@ class ExperimentControllerUI(Measurement):
         """
         # initialize pygame
         pygame.mixer.init()
+
+        # Initialize timer
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.start()
                             
         # Define ui file to be used as a graphical interface
         # This file can be edited graphically with Qt Creator
@@ -480,10 +484,9 @@ class ExperimentControllerUI(Measurement):
                         pygame.mixer.music.play()
                         
                         # start a timer for the duration of the fixation step
-                        self.scheduler = BackgroundScheduler()
+                        
                         self.scheduler.add_job(self.step_timer, 'interval', seconds=step_duration)
-                        self.scheduler.start()
-                    
+                     
                     else:
                         # disconnect all limbs from mobile
                         #self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox = "None"
@@ -509,20 +512,19 @@ class ExperimentControllerUI(Measurement):
                         # Initialize pygame mixer
                         if background_music:
                             # Load the WAV file for the background music
-                            pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
+                            pygame.mixer.music.load('./media/background-piano-music.mp3')
                             # Play the WAV file
                             pygame.mixer.music.play()
                         
                         # start a timer for the duration of the fixation step
-                        self.scheduler = BackgroundScheduler()
+                        
                         self.scheduler.add_job(self.step_timer, 'interval', seconds=step_duration)
-                        self.scheduler.start()
                         
                     self.previous_step = self.current_step
 
                 # if the timer expired, move to the next step
                 if self.timer_expired:
-                    self.scheduler.shutdown()
+                    self.scheduler.remove_all_jobs()
                     self.current_step += 1
                     self.timer_expired = False
 
@@ -531,7 +533,7 @@ class ExperimentControllerUI(Measurement):
                         pygame.mixer.music.stop()
                     
                     # play a sound to indicate the end of the step
-                    pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
+                    pygame.mixer.music.load('./media/bingbong.wav')
                     pygame.mixer.music.play()
 
                     if self.current_step >= len(self.step_structure_data):
@@ -566,6 +568,12 @@ class ExperimentControllerUI(Measurement):
                     self.mobile_ui.socket_sound.send_string(message)
                 except zmq.error.ZMQError as e:
                     pass
+
+            # stop background music if it is playing
+            pygame.mixer.music.stop()
+
+            # shutdown the scheduler
+            self.scheduler.remove_all_jobs()
 
             if self.settings['save_h5']:
                 # make sure to close the data file
