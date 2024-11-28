@@ -334,6 +334,28 @@ class ExperimentControllerUI(Measurement):
         # connect to data update signal
         self.ui.start_stimuli_pushButton.clicked.connect(self.start)
         self.ui.stop_stimuli_pushButton.clicked.connect(self.interrupt)
+        self.task_table_model.itemChanged.connect(self.on_item_changed)
+
+    def on_item_changed(self, item):
+        
+        row = item.row()
+        col = item.column()
+        if col == 1:
+            self.step_structure_data[row][col] = item.text()
+        elif col == 3:
+            self.step_structure_data[row][col] = item.text()
+        elif col == 4:
+            self.step_structure_data[row][col] = item.checkState() == Qt.Checked
+
+        # udpate self.step_structure_data with the remaining array columns
+        self.step_structure_data[row][0] = int(self.task_table_model.item(row, 0).text())
+        self.step_structure_data[row][2] = int(self.task_table_model.item(row, 2).text())
+
+        # what the columns again?
+        # can you write in this comment
+        # Step Number, Step Description, Step Duration [sec], Limb Connected to Mobile, Background Music
+        
+
         
     def update_task_ID(self):
         # construct task ID according to the following format:
