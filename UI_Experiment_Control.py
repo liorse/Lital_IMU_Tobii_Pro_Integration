@@ -26,6 +26,8 @@ from PyQt5.QtCore import QAbstractItemModel, QEvent, QModelIndex
 from PyQt5.QtGui import QPainter, QMouseEvent
 from PyQt5.QtWidgets import QStyleOptionViewItem
 import yaml
+import pygame
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 class ComboBoxDelegate(QStyledItemDelegate):
@@ -220,6 +222,9 @@ class ExperimentControllerUI(Measurement):
         DataLength = 500
         self.buffer = np.zeros(DataLength)
 
+        # setup a easy interface to metawear UI
+        self.metawear_ui = self.app.measurements["MetaWear Sensors Control"]
+        self.mobile_ui = self.app.measurements["Mobile Control"]
 
     def setup_figure(self):
         """
@@ -363,7 +368,6 @@ class ExperimentControllerUI(Measurement):
         task_ID = f"{task_name}.{current_date}.{participant}.{age}.{trial_number}"
         self.settings['task_ID'] = task_ID
 
-
     def update_display(self):
         """
         Displays (plots) the numpy array self.buffer. 
@@ -371,6 +375,10 @@ class ExperimentControllerUI(Measurement):
         its update frequency is defined by self.display_update_period
         """
         pass
+
+    def step_timer(self):
+        self.timer_expired = True
+        self.scheduler.shutdown()
 
     def run(self):
         """
@@ -399,19 +407,22 @@ class ExperimentControllerUI(Measurement):
         # We use a try/finally block, so that if anything goes wrong during a measurement,
         # the finally block can clean things up, e.g. close the data file object.
         
-    
+        
         try:
             i = 0
-            
+            self.current_step = 0
+            self.previous_step = -1
+            self.timer_expired = False
+
             # Will run forever until interrupt is called.
+            # Start Streaming Sensor Data and initiate saving the data
+            self.metawear_ui.start()
             while not self.interrupt_measurement_called:
                 i %= len(self.buffer)
                 
                 # Set progress bar percentage complete
                 self.settings['progress'] = i * 100./len(self.buffer)
                 
-                # Fills the buffer with sine wave readings from func_gen Hardware
-                #self.buffer[i] = self.func_gen.settings.sine_data.read_from_hardware()
                 
                 if self.settings['save_h5']:
                     # if we are saving data to disk, copy data to H5 dataset
@@ -425,6 +436,99 @@ class ExperimentControllerUI(Measurement):
                 
                 i += 1
 
+                # start consuming the steps in self.step_structure_data
+                # let self.current_step be the current step
+                # first time entering a step
+                if self.current_step != self.previous_step:
+                    # get all the step data from self.step_structure_data
+                    step_number = self.step_structure_data[self.current_step][0]
+                    step_description = self.step_structure_data[self.current_step][1]
+                    step_duration = self.step_structure_data[self.current_step][2]
+                    limb_connected_to_mobile = self.step_structure_data[self.current_step][3]
+                    background_music = self.step_structure_data[self.current_step][4]
+
+                    # Initialize Hardware 
+                    if step_description == "Fixation":
+
+                        # disconnect all limbs from mobile
+                        #self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox = "None"
+                        self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText("None")
+
+                        # Send to mobile the start of fixation step
+                        if hasattr(self.mobile_ui, 'socket'):
+                            try:
+                                self.mobile_ui.socket.send_multipart([b"fixation_movie", str(int(30)).encode('utf-8')])
+                            except zmq.error.ZMQError as e:
+                                pass
+
+                        # Stop the audio server from playing the mobile music
+                        message = f"{0},{0.1}" # sound speed , sound volume
+                        if hasattr(self.mobile_ui, 'socket_sound'):
+                            try:
+                                self.mobile_ui.socket_sound.send_string(message)
+                            except zmq.error.ZMQError as e:
+                                pass
+
+                        # Play the the relevant fixation sound
+                        # Initialize pygame mixer
+                        pygame.mixer.init()
+
+                        # Load the WAV file
+                        pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
+
+                        # Play the WAV file
+                        pygame.mixer.music.play()
+                        
+                        # start a timer for the duration of the fixation step
+                        self.scheduler = BackgroundScheduler()
+                        self.scheduler.add_job(self.step_timer, 'interval', seconds=step_duration)
+                        self.scheduler.start()
+                    
+                    else:
+                        # disconnect all limbs from mobile
+                        #self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox = "None"
+                        
+                        self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText(limb_connected_to_mobile)
+
+                        # Send to mobile the start of fixation step
+                        if hasattr(self.mobile_ui, 'socket'):
+                            try:
+                                self.mobile_ui.socket.send_multipart([b"mobile_movie", str(int(0)).encode('utf-8')])
+                            except zmq.error.ZMQError as e:
+                                pass
+
+                        # Stop the audio server from playing the mobile music
+                        message = f"{1},{0.1}" # sound speed , sound volume
+                        if hasattr(self.mobile_ui, 'socket_sound'):
+                            try:
+                                self.mobile_ui.socket_sound.send_string(message)
+                            except zmq.error.ZMQError as e:
+                                pass
+
+                        # Play the the relevant fixation sound
+                        # Initialize pygame mixer
+                        if background_music:
+                            pygame.mixer.init()
+                            # Load the WAV file for the background music
+                            pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
+                            # Play the WAV file
+                            pygame.mixer.music.play()
+                        
+                        # start a timer for the duration of the fixation step
+                        self.scheduler = BackgroundScheduler()
+                        self.scheduler.add_job(self.step_timer, 'interval', seconds=step_duration)
+                        self.scheduler.start()
+                        
+                    self.previous_step = self.current_step
+
+                # if the timer expired, move to the next step
+                if self.timer_expired:
+                    self.current_step += 1
+                    self.timer_expired = False
+                    if self.current_step >= len(self.step_structure_data):
+                        self.interrupt_measurement_called = True
+                        # this will break the run
+
                 if self.interrupt_measurement_called:
                     # Listen for interrupt_measurement_called flag.
                     # This is critical to do, if you don't the measurement will
@@ -436,6 +540,11 @@ class ExperimentControllerUI(Measurement):
         finally:            
 
             print("Experiment is finished")
+            print("stop streaming sensor data")
+            self.metawear_ui.interrupt()
+            print("show dark screen on mobile")
+            self.mobile_ui.socket.send_multipart([b"dark", b"0"])
+
             if self.settings['save_h5']:
                 # make sure to close the data file
                 self.h5file.close()
