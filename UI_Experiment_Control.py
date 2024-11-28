@@ -25,6 +25,7 @@ from PyQt5.QtCore import QRect, QSize, QEvent
 from PyQt5.QtCore import QAbstractItemModel, QEvent, QModelIndex
 from PyQt5.QtGui import QPainter, QMouseEvent
 from PyQt5.QtWidgets import QStyleOptionViewItem
+import yaml
 
 
 class ComboBoxDelegate(QStyledItemDelegate):
@@ -244,6 +245,24 @@ class ExperimentControllerUI(Measurement):
 
         # create a table to display task structure
         # Sample data
+        # Step Number, Step Description, Step Duration [sec], Limb Connected to Mobile, Background Music
+        # read the data from a yaml configuration file
+        # Load the YAML configuration file
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+
+        # Extract the step structure data from the configuration
+        self.step_structure_data = [
+            [
+                task['step_number'],
+                task['step_description'],
+                task['step_duration_sec'],
+                task['limb_connected_to_mobile'],
+                task['background_music']
+            ]
+            for task in config['tasks']
+        ]
+        '''
         step_structure_data = [
             [1, "Fixation", 2, "None", False],
             [2, "Base Line", 150, "None", True],
@@ -251,7 +270,8 @@ class ExperimentControllerUI(Measurement):
             [4, "Disconnect",200, "None", False],
             [5, "Reconnect", 220, "Right Leg", False]   
         ]
-        
+        '''
+
         # Create the model
         # Create TableView and Model
         self.task_table = QTableView()
@@ -261,14 +281,14 @@ class ExperimentControllerUI(Measurement):
         # add sample data
         for row in range(5):
             for col in range(5):
-                if isinstance(step_structure_data[row][col], bool):
+                if isinstance(self.step_structure_data[row][col], bool):
                     item = QStandardItem()
                     item.setCheckable(True)
-                    item.setCheckState(Qt.Checked if step_structure_data[row][col] else Qt.Unchecked)
+                    item.setCheckState(Qt.Checked if self.step_structure_data[row][col] else Qt.Unchecked)
                     # set check box alignment to center, it is not text alignment
                     item.setTextAlignment(Qt.AlignCenter)
                 else:
-                    item = QStandardItem(str(step_structure_data[row][col]))
+                    item = QStandardItem(str(self.step_structure_data[row][col]))
                 item.setTextAlignment(Qt.AlignCenter)
                 self.task_table_model.setItem(row, col, item)
 

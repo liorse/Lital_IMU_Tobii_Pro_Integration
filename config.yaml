@@ -1,0 +1,26 @@
+tasks:
+  - step_number: 1
+    step_description: "Fixation"
+    step_duration_sec: 2
+    limb_connected_to_mobile: "None"
+    background_music: false
+  - step_number: 2
+    step_description: "Base Line"
+    step_duration_sec: 150
+    limb_connected_to_mobile: "None"
+    background_music: true
+  - step_number: 3
+    step_description: "Connect"
+    step_duration_sec: 180
+    limb_connected_to_mobile: "Left Hand"
+    background_music: false
+  - step_number: 4
+    step_description: "Disconnect"
+    step_duration_sec: 200
+    limb_connected_to_mobile: "None"
+    background_music: false
+  - step_number: 5
+    step_description: "Reconnect"
+    step_duration_sec: 220
+    limb_connected_to_mobile: "Right Leg"
+    background_music: false
