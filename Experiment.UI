@@ -19,8 +19,8 @@
 }
 </string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0">
-   <item row="2" column="0">
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0">
+   <item row="4" column="0">
     <widget class="QGroupBox" name="plot_groupBox">
      <property name="title">
       <string>Plot</string>
@@ -31,9 +31,25 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="settings_groupBox">
      <property name="title">
-      <string>Settings</string>
+      <string>Participant and Task Information</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="2">
+       <widget class="QDoubleSpinBox" name="trial_number_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="2">
        <widget class="QDoubleSpinBox" name="age_spinBox">
         <property name="decimals">
@@ -54,13 +70,6 @@
        <widget class="QLabel" name="framerate_label_label_12">
         <property name="text">
          <string>Trial number</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="stop_stimuli_pushButton">
-        <property name="text">
-         <string>Stop Task</string>
         </property>
        </widget>
       </item>
@@ -90,13 +99,6 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="save_h5_checkBox">
-        <property name="text">
-         <string>Save H5</string>
-        </property>
-       </widget>
-      </item>
       <item row="3" column="1">
        <widget class="QLabel" name="framerate_label_label_3">
         <property name="text">
@@ -121,31 +123,15 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="start_stimuli_pushButton">
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="save_h5_checkBox">
         <property name="text">
-         <string>Start Task</string>
+         <string>Save H5</string>
         </property>
        </widget>
       </item>
       <item row="5" column="2">
        <widget class="QLineEdit" name="Task_ID_QLine_edit"/>
-      </item>
-      <item row="4" column="2">
-       <widget class="QDoubleSpinBox" name="trial_number_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -157,6 +143,31 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2"/>
     </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="start_stimuli_pushButton">
+       <property name="text">
+        <string>Start Task</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stop_stimuli_pushButton_3">
+       <property name="text">
+        <string>Pause Task</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stop_stimuli_pushButton">
+       <property name="text">
+        <string>Stop Task</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
