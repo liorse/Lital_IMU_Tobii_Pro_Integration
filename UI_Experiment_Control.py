@@ -184,7 +184,9 @@ class ExperimentControllerUI(Measurement):
         This is the place to load a user interface file,
         define settings, and set up data structures. 
         """
-        
+        # initialize pygame
+        pygame.mixer.init()
+                            
         # Define ui file to be used as a graphical interface
         # This file can be edited graphically with Qt Creator
         # sibling_path function allows python to find a file in the same folder
@@ -471,8 +473,6 @@ class ExperimentControllerUI(Measurement):
 
                         # Play the the relevant fixation sound
                         # Initialize pygame mixer
-                        pygame.mixer.init()
-
                         # Load the WAV file
                         pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
 
@@ -508,7 +508,6 @@ class ExperimentControllerUI(Measurement):
                         # Play the the relevant fixation sound
                         # Initialize pygame mixer
                         if background_music:
-                            pygame.mixer.init()
                             # Load the WAV file for the background music
                             pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
                             # Play the WAV file
@@ -526,6 +525,15 @@ class ExperimentControllerUI(Measurement):
                     self.scheduler.shutdown()
                     self.current_step += 1
                     self.timer_expired = False
+
+                    # stop background music if it is playing
+                    if background_music:
+                        pygame.mixer.music.stop()
+                    
+                    # play a sound to indicate the end of the step
+                    pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
+                    pygame.mixer.music.play()
+
                     if self.current_step >= len(self.step_structure_data):
                         self.interrupt_measurement_called = True
                         # this will break the run
@@ -544,7 +552,20 @@ class ExperimentControllerUI(Measurement):
             print("stop streaming sensor data")
             self.metawear_ui.interrupt()
             print("show dark screen on mobile")
-            self.mobile_ui.socket.send_multipart([b"dark", b"0"])
+            try:
+                self.mobile_ui.socket.send_multipart([b"dark", b"0"])
+            except zmq.error.ZMQError as e:
+                pass
+
+            print("disconnect all limbs from mobile")
+            self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText("None")
+            # Stop the audio server from playing the mobile music
+            message = f"{0},{0.1}" # sound speed , sound volume
+            if hasattr(self.mobile_ui, 'socket_sound'):
+                try:
+                    self.mobile_ui.socket_sound.send_string(message)
+                except zmq.error.ZMQError as e:
+                    pass
 
             if self.settings['save_h5']:
                 # make sure to close the data file
