@@ -28,7 +28,7 @@ from PyQt5.QtWidgets import QStyleOptionViewItem
 import yaml
 import pygame
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 class ComboBoxDelegate(QStyledItemDelegate):
     def __init__(self, items, parent=None):
@@ -258,6 +258,8 @@ class ExperimentControllerUI(Measurement):
         self.ui.task_name_ComboBox.currentIndexChanged.connect(self.update_task_ID)
         self.ui.trial_number_spinBox.valueChanged.connect(self.update_task_ID)
 
+        self.ui.pause_stimuli_pushButton.clicked.connect(self.pause)
+  
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()
         self.ui.plot_groupBox.layout().addWidget(self.graph_layout)
@@ -356,6 +358,32 @@ class ExperimentControllerUI(Measurement):
         self.task_table_model.itemChanged.connect(self.on_item_changed)
         self.update_task_ID()
 
+    def pause(self):
+        if self.state == "running":
+            if self.scheduler.get_job(job_id='step_timer'):
+                self.state = "paused"
+                self.scheduler.pause_job(job_id="step_timer")
+                self.pause_time = datetime.now(timezone.utc)
+                self.ui.pause_stimuli_pushButton.setText("Resume Task")
+        elif self.state == "paused":
+            self.state = "running"
+            elapsed_pause_time = datetime.now(timezone.utc) - self.pause_time
+            original_next_run_time = self.scheduler.get_job(job_id="step_timer").trigger.get_next_fire_time(self.job_start_time, self.pause_time)
+            self.total_pause_time += elapsed_pause_time.total_seconds()
+            adjusted_next_run_time = original_next_run_time + timedelta(seconds=self.total_pause_time)
+            print(f"original_next_run_time: {original_next_run_time}")
+            print(f"adjusted_next_run_time: {adjusted_next_run_time}")
+            print(f"elapsed_pause_time: {elapsed_pause_time}")
+            print(f"total_pause_time: {self.total_pause_time}")
+            self.scheduler.modify_job(job_id="step_timer", next_run_time=adjusted_next_run_time)
+
+            #self.scheduler.resume_job(job_id="step_timer")
+            self.ui.pause_stimuli_pushButton.setText("Pause Task")
+
+
+    
+    # Resume the job with adjusted next_run_time
+    
     def on_item_changed(self, item):
         # Step Number, Step Description, Step Duration [sec], Limb Connected to Mobile, Background Music
         row = item.row()
@@ -523,6 +551,8 @@ class ExperimentControllerUI(Measurement):
                         # start a timer for the duration of the fixation step
                         
                         self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
+                        self.job_start_time = datetime.now(timezone.utc)
+                        self.total_pause_time = 0
 
                     else:
                         # disconnect all limbs from mobile
@@ -556,7 +586,10 @@ class ExperimentControllerUI(Measurement):
                         # start a timer for the duration of the fixation step
                         
                         self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
-                        
+                        self.job_start_time = datetime.now(timezone.utc)
+                        self.total_pause_time = 0
+
+
                     
                     self.previous_step = self.current_step
 
@@ -564,15 +597,14 @@ class ExperimentControllerUI(Measurement):
 
                 # I want to know how much time has passed since the start of the task how to query the aps scheduler
                 job = self.scheduler.get_job(job_id='step_timer')
-                if job:
+                if job and job.next_run_time:
                     now = datetime.now(timezone.utc)  # Get the current time as a timezone-aware datetime
-                    if job.next_run_time:
-                        remaining_time = job.next_run_time - now
-                        elapsed_time = step_duration - remaining_time.total_seconds()
-                        if self.total_elapsed_time_seconds + elapsed_time > self.running_elapsed_time:
-                            self.running_elapsed_time = self.total_elapsed_time_seconds + elapsed_time
-                            self.remaining_time_seconds = self.total_time_seconds - self.running_elapsed_time
-                            self.remaining_time_in_step = step_duration - elapsed_time
+                    remaining_time = job.next_run_time - now
+                    elapsed_time = step_duration - remaining_time.total_seconds()
+                    if self.total_elapsed_time_seconds + elapsed_time > self.running_elapsed_time:
+                        self.running_elapsed_time = self.total_elapsed_time_seconds + elapsed_time
+                        self.remaining_time_seconds = self.total_time_seconds - self.running_elapsed_time
+                        self.remaining_time_in_step = step_duration - elapsed_time
 
                 # if the timer expired, move to the next step
                 if self.timer_expired:
