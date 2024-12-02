@@ -1,34 +1,25 @@
-from ScopeFoundry import Measurement
+from ScopeFoundry import Measurement, h5_io
 from ScopeFoundry.helper_funcs import sibling_path, load_qt_ui_file
-from ScopeFoundry import h5_io
 import pyqtgraph as pg
 import numpy as np
 import time
 import zmq
 import subprocess
-from PyQt5.QtWidgets import QTableWidgetItem, QComboBox, QCheckBox
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QHeaderView
-
-from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant, QModelIndex
-from PyQt5.QtWidgets import (
-    QComboBox, QCheckBox, QWidget, QStyleOptionComboBox, QStyleOptionButton, QStyle,
-    QStyledItemDelegate, QTableView, QVBoxLayout, QHeaderView, QApplication, QSizePolicy
-)
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-# add QEvent to the list of imports
-from PyQt5.QtCore import QEvent
-from typing import Optional
-
-# add relevent imports
-from PyQt5.QtCore import QRect, QSize, QEvent
-from PyQt5.QtCore import QAbstractItemModel, QEvent, QModelIndex
-from PyQt5.QtGui import QPainter, QMouseEvent
-from PyQt5.QtWidgets import QStyleOptionViewItem
 import yaml
 import pygame
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timezone, timedelta
+from typing import Optional
+from PyQt5.QtCore import (
+    Qt, QAbstractTableModel, QVariant, QModelIndex, QEvent, QRect, QSize, QAbstractItemModel
+)
+from PyQt5.QtGui import (
+    QStandardItemModel, QStandardItem, QPainter, QMouseEvent
+)
+from PyQt5.QtWidgets import (
+    QTableWidgetItem, QComboBox, QCheckBox, QWidget, QStyleOptionComboBox, QStyleOptionButton, QStyle,
+    QStyledItemDelegate, QTableView, QVBoxLayout, QHeaderView, QApplication, QSizePolicy, QStyleOptionViewItem
+)
 
 class ComboBoxDelegate(QStyledItemDelegate):
     def __init__(self, items, parent=None):
