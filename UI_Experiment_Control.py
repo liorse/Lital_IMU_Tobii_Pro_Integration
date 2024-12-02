@@ -235,7 +235,8 @@ class ExperimentControllerUI(Measurement):
         self.ui.progressBar.setValue(0)
         self.ui.progressBar.setFormat("00:00 time left to running task (min:sec)")
         self.ui.step_Label.setText("No step is running")
-
+        self.step_number = 1
+        self.step_description = "No_step"
         self.state = "stopped" # idle, running, paused, stopped
 
     def setup_figure(self):
