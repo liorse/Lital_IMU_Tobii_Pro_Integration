@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>613</width>
-    <height>444</height>
+    <width>615</width>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
 }
 </string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0">
-   <item row="4" column="0">
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0">
+   <item row="5" column="0">
     <widget class="QGroupBox" name="plot_groupBox">
      <property name="title">
       <string>Plot</string>
@@ -136,14 +136,6 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QGroupBox" name="Task_structure_group">
-     <property name="title">
-      <string>Task Structure</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
-    </widget>
-   </item>
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -154,7 +146,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="stop_stimuli_pushButton_3">
+      <widget class="QPushButton" name="pause_stimuli_pushButton">
        <property name="text">
         <string>Pause Task</string>
        </property>
@@ -168,6 +160,43 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+     <property name="textVisible">
+      <bool>true</bool>
+     </property>
+     <property name="format">
+      <string>0:20</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="Task_structure_group">
+     <property name="title">
+      <string>Task Structure</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2"/>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="step_Label">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

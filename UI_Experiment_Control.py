@@ -232,6 +232,12 @@ class ExperimentControllerUI(Measurement):
         self.metawear_ui = self.app.measurements["MetaWear Sensors Control"]
         self.mobile_ui = self.app.measurements["Mobile Control"]
 
+        self.ui.progressBar.setValue(0)
+        self.ui.progressBar.setFormat("00:00 time left to running task (min:sec)")
+        self.ui.step_Label.setText("No step is running")
+
+        self.state = "stopped" # idle, running, paused, stopped
+
     def setup_figure(self):
         """
         Runs once during App initialization, after setup()
@@ -380,7 +386,19 @@ class ExperimentControllerUI(Measurement):
         This function runs repeatedly and automatically during the measurement run.
         its update frequency is defined by self.display_update_period
         """
-        pass
+        self.ui.progressBar.setValue(int(self.running_elapsed_time * 100 / self.total_time_seconds))
+        # take seconds in float and convert to string that minutes:seconds in 
+        # format mm:ss
+        minutes, seconds = divmod(self.remaining_time_seconds, 60)
+        time_str = f"{int(minutes):02d}:{int(seconds):02d}"
+
+        # prepare the current step number and description into string
+        current_step_str = f"Step {self.step_number}: {self.step_description} is running"
+        self.ui.progressBar.setFormat(f"{time_str} time left to running task (min:sec)")
+        if self.state != "stopped":
+            self.ui.step_Label.setText(current_step_str)
+        else:
+            self.ui.step_Label.setText("No step is running")
 
     def step_timer(self):
         self.timer_expired = True
@@ -393,6 +411,7 @@ class ExperimentControllerUI(Measurement):
         focus on data acquisition.
         """
         
+        self.state = "running" # idle, running, paused, stopped
 
         # first, create a data file
         if self.settings['save_h5']:
@@ -428,6 +447,7 @@ class ExperimentControllerUI(Measurement):
             self.total_time_seconds = sum([task[2] for task in self.step_structure_data])
             self.total_elapsed_time_seconds = 0
             self.running_elapsed_time = 0 
+            self.remaining_time_seconds = self.total_time_seconds
 
             while not self.interrupt_measurement_called:
                 i %= len(self.buffer)
@@ -453,10 +473,11 @@ class ExperimentControllerUI(Measurement):
                 # first time entering a step
                 if self.current_step != self.previous_step:
 
-                    
                     # get all the step data from self.step_structure_data
                     step_number = self.step_structure_data[self.current_step][0]
+                    self.step_number = step_number
                     step_description = self.step_structure_data[self.current_step][1]
+                    self.step_description = step_description
                     step_duration = self.step_structure_data[self.current_step][2]
                     limb_connected_to_mobile = self.step_structure_data[self.current_step][3]
                     background_music = self.step_structure_data[self.current_step][4]
@@ -542,9 +563,8 @@ class ExperimentControllerUI(Measurement):
                         elapsed_time = step_duration - remaining_time.total_seconds()
                         if self.total_elapsed_time_seconds + elapsed_time > self.running_elapsed_time:
                             self.running_elapsed_time = self.total_elapsed_time_seconds + elapsed_time
-                        print(f"step: {self.current_step}, elapsed time: {elapsed_time} seconds")
-                        print(f"Elapsed time: {self.running_elapsed_time} seconds")
-
+                            self.remaining_time_seconds = self.total_time_seconds - self.running_elapsed_time
+                        
                 # if the timer expired, move to the next step
                 if self.timer_expired:
 
@@ -607,6 +627,12 @@ class ExperimentControllerUI(Measurement):
 
             # shutdown the scheduler
             self.scheduler.remove_all_jobs()
+
+            # initialize time variables
+            self.remaining_time_seconds = 0
+            self.running_elapsed_time = 0
+            self.total_elapsed_time_seconds = 1
+            self.state = "stopped" # idle, running, paused, stopped
 
             if self.settings['save_h5']:
                 # make sure to close the data file
