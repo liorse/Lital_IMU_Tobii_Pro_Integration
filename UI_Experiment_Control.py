@@ -28,7 +28,7 @@ from PyQt5.QtWidgets import QStyleOptionViewItem
 import yaml
 import pygame
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from datetime import datetime, timezone
 
 class ComboBoxDelegate(QStyledItemDelegate):
     def __init__(self, items, parent=None):
@@ -423,6 +423,12 @@ class ExperimentControllerUI(Measurement):
             # Will run forever until interrupt is called.
             # Start Streaming Sensor Data and initiate saving the data
             self.metawear_ui.start()
+
+            # calculate total time of the task:
+            self.total_time_seconds = sum([task[2] for task in self.step_structure_data])
+            self.total_elapsed_time_seconds = 0
+            self.running_elapsed_time = 0 
+
             while not self.interrupt_measurement_called:
                 i %= len(self.buffer)
                 
@@ -446,6 +452,8 @@ class ExperimentControllerUI(Measurement):
                 # let self.current_step be the current step
                 # first time entering a step
                 if self.current_step != self.previous_step:
+
+                    
                     # get all the step data from self.step_structure_data
                     step_number = self.step_structure_data[self.current_step][0]
                     step_description = self.step_structure_data[self.current_step][1]
@@ -485,8 +493,8 @@ class ExperimentControllerUI(Measurement):
                         
                         # start a timer for the duration of the fixation step
                         
-                        self.scheduler.add_job(self.step_timer, 'interval', seconds=step_duration)
-                     
+                        self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
+
                     else:
                         # disconnect all limbs from mobile
                         #self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox = "None"
@@ -518,12 +526,31 @@ class ExperimentControllerUI(Measurement):
                         
                         # start a timer for the duration of the fixation step
                         
-                        self.scheduler.add_job(self.step_timer, 'interval', seconds=step_duration)
+                        self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
                         
+                    
                     self.previous_step = self.current_step
+
+                    
+
+                # I want to know how much time has passed since the start of the task how to query the aps scheduler
+                job = self.scheduler.get_job(job_id='step_timer')
+                if job:
+                    now = datetime.now(timezone.utc)  # Get the current time as a timezone-aware datetime
+                    if job.next_run_time:
+                        remaining_time = job.next_run_time - now
+                        elapsed_time = step_duration - remaining_time.total_seconds()
+                        if self.total_elapsed_time_seconds + elapsed_time > self.running_elapsed_time:
+                            self.running_elapsed_time = self.total_elapsed_time_seconds + elapsed_time
+                        print(f"step: {self.current_step}, elapsed time: {elapsed_time} seconds")
+                        print(f"Elapsed time: {self.running_elapsed_time} seconds")
 
                 # if the timer expired, move to the next step
                 if self.timer_expired:
+
+                    if self.previous_step != -1:
+                        self.total_elapsed_time_seconds += step_duration
+                    
                     self.scheduler.remove_all_jobs()
                     self.current_step += 1
                     self.timer_expired = False
@@ -564,7 +591,7 @@ class ExperimentControllerUI(Measurement):
             print("show dark screen on mobile")
             try:
                 self.mobile_ui.socket.send_multipart([b"dark", b"0"])
-            except zmq.error.ZMQError as e:
+            except (zmq.error.ZMQError, AttributeError) as e:
                 pass
 
             # Stop the audio server from playing the mobile music
