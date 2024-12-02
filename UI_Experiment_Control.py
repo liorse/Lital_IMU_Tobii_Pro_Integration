@@ -238,6 +238,7 @@ class ExperimentControllerUI(Measurement):
         self.step_number = 1
         self.step_description = "No_step"
         self.state = "stopped" # idle, running, paused, stopped
+        self.remaining_time_in_step = 0
 
     def setup_figure(self):
         """
@@ -394,10 +395,15 @@ class ExperimentControllerUI(Measurement):
         time_str = f"{int(minutes):02d}:{int(seconds):02d}"
 
         # prepare the current step number and description into string
-        current_step_str = f"Step {self.step_number}: {self.step_description} is running"
         self.ui.progressBar.setFormat(f"{time_str} time left to running task (min:sec)")
+
+        current_step_str = f"step {self.step_number}: {self.step_description} is running"
+        
+        minutes, seconds = divmod(self.remaining_time_in_step, 60)
+        time_str = f"{int(minutes):02d}:{int(seconds):02d}"
+
         if self.state != "stopped":
-            self.ui.step_Label.setText(current_step_str)
+            self.ui.step_Label.setText(time_str + " time remaining in " + current_step_str)
         else:
             self.ui.step_Label.setText("No step is running")
 
@@ -449,6 +455,7 @@ class ExperimentControllerUI(Measurement):
             self.total_elapsed_time_seconds = 0
             self.running_elapsed_time = 0 
             self.remaining_time_seconds = self.total_time_seconds
+            self.remaining_time_in_step = 0
 
             while not self.interrupt_measurement_called:
                 i %= len(self.buffer)
@@ -565,7 +572,8 @@ class ExperimentControllerUI(Measurement):
                         if self.total_elapsed_time_seconds + elapsed_time > self.running_elapsed_time:
                             self.running_elapsed_time = self.total_elapsed_time_seconds + elapsed_time
                             self.remaining_time_seconds = self.total_time_seconds - self.running_elapsed_time
-                        
+                            self.remaining_time_in_step = step_duration - elapsed_time
+
                 # if the timer expired, move to the next step
                 if self.timer_expired:
 
@@ -633,6 +641,7 @@ class ExperimentControllerUI(Measurement):
             self.remaining_time_seconds = 0
             self.running_elapsed_time = 0
             self.total_elapsed_time_seconds = 1
+            self.remaining_time_in_step = 0
             self.state = "stopped" # idle, running, paused, stopped
 
             if self.settings['save_h5']:
