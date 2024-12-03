@@ -229,17 +229,14 @@ class MobileControllerUI(Measurement):
             # if enabled will create an HDF5 file with the plotted data
             # first we create an H5 file (by default autosaved to app.settings['save_dir']
             # This stores all the hardware and app meta-data in the H5 file
+            
             self.h5file = h5_io.h5_base_file(app=self.app, measurement=self)
             
             # create a measurement H5 group (folder) within self.h5file
             # This stores all the measurement meta-data in this group
             self.h5_group = h5_io.h5_create_measurement_group(measurement=self, h5group=self.h5file)
             
-            # create an h5 dataset to store the data
-            self.buffer_h5 = self.h5_group.create_dataset(name  = 'buffer', 
-                                                          shape = self.buffer.shape,
-                                                          dtype = self.buffer.dtype)
-        
+            
         # We use a try/finally block, so that if anything goes wrong during a measurement,
         # the finally block can clean things up, e.g. close the data file object.
         
@@ -272,15 +269,6 @@ class MobileControllerUI(Measurement):
                 
                 # Set progress bar percentage complete
                 self.settings['progress'] = i * 100./len(self.buffer)
-                
-                # Fills the buffer with sine wave readings from func_gen Hardware
-                #self.buffer[i] = self.func_gen.settings.sine_data.read_from_hardware()
-                
-                if self.settings['save_h5']:
-                    # if we are saving data to disk, copy data to H5 dataset
-                    self.buffer_h5[i] = self.buffer[i]
-                    # flush H5
-                    self.h5file.flush()
                 
                 # wait between readings.
                 # We will use our sampling_period settings to define time

@@ -150,6 +150,7 @@ class MetaWearUI(Measurement):
         self.leftleg_plot = self.plot.plot(pen='b', name = "left leg acc")
         self.rightleg_plot = self.plot.plot(pen='y', name = "right leg acc")
 
+
         # connect to data update signal
         self.LeftHandMeta.acc_data_updated.connect(self.update_left_hand_data)
         self.RightHandMeta.acc_data_updated.connect(self.update_right_hand_data)
