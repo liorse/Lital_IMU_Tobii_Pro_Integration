@@ -454,6 +454,21 @@ class ExperimentControllerUI(Measurement):
             self.buffer_h5 = self.h5_group.create_dataset(name  = 'buffer', 
                                                           shape = self.buffer.shape,
                                                           dtype = self.buffer.dtype)
+            
+            # create an h5 dataset to save the step structure data
+            self.step_structure_data_h5 = self.h5_group.create_dataset(name = 'step_structure_data',
+                                                                      shape = (len(self.step_structure_data), 5),
+                                                                      dtype = 'S100')
+            
+            # save the step structure data to the h5 file
+            # Define column names for the step structure data
+            step_structure_columns = ["Step Number", "Step Description", "Step Duration [sec]", "Limb Connected to Mobile", "Background Music"]
+            self.step_structure_data_h5.attrs['columns'] = step_structure_columns
+
+            for i, step in enumerate(self.step_structure_data):
+                for j, value in enumerate(step):
+                    self.step_structure_data_h5[i, j] = str(value).encode('utf-8') # convert to bytes before saving
+
         
         # We use a try/finally block, so that if anything goes wrong during a measurement,
         # the finally block can clean things up, e.g. close the data file object.
