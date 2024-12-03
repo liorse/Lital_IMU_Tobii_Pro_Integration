@@ -691,7 +691,7 @@ class ExperimentControllerUI(Measurement):
             if self.settings['save_h5']:
                 self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
                 self.events_h5[-1] = ["Task", "End", datetime.now().isoformat()]
-                
+
             print("stop streaming sensor data")
             self.metawear_ui.interrupt()
 
@@ -724,6 +724,9 @@ class ExperimentControllerUI(Measurement):
             self.total_elapsed_time_seconds = 1
             self.remaining_time_in_step = 0
             self.state = "stopped" # idle, running, paused, stopped
+            
+            self.ui.pause_stimuli_pushButton.setText("Pause Task")
+            self.ui.pause_stimuli_pushButton.setChecked(False)
 
             if self.settings['save_h5']:
                 # make sure to close the data file
