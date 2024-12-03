@@ -24,3 +24,13 @@ tasks:
     step_duration_sec: 5
     limb_connected_to_mobile: "Right Leg"
     background_music: false
+
+hardware:
+  - name: "LeftHandMeta"
+    MAC: "C2:26:C4:65:45:54"
+  - name: "RightHandMeta"
+    MAC: "F3:F1:E2:D3:6E:A7"
+  - name: "LeftLegMeta"
+    MAC: "E1:39:04:67:C2:9B"
+  - name: "RightLegMeta"
+    MAC: "C7:B2:76:3D:6B:1D"

@@ -1,6 +1,7 @@
 import pythoncom
 pythoncom.CoInitialize()
-
+import yaml
+import sys
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
 from UI_MetaMotionRL import MetaWearUI
@@ -21,10 +22,19 @@ class AgencySensor(BaseMicroscopeApp):
         
         #Add hardware components
         print("Adding Hardware Components")
-        self.add_hardware(MetaMotionRLHW(self, name='LeftHandMeta', MAC="C2:26:C4:65:45:54"))
-        self.add_hardware(MetaMotionRLHW(self, name='RightHandMeta', MAC="F3:F1:E2:D3:6E:A7"))
-        self.add_hardware(MetaMotionRLHW(self, name='LeftLegMeta', MAC="E1:39:04:67:C2:9B"))
-        self.add_hardware(MetaMotionRLHW(self, name='RightLegMeta', MAC="C7:B2:76:3D:6B:1D"))
+        # Load MAC addresses from config.yaml file
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+        hardware_configs = {item['name']: item['MAC'] for item in config['hardware']}
+        left_hand_mac = hardware_configs['LeftHandMeta']
+        right_hand_mac = hardware_configs['RightHandMeta']
+        left_leg_mac = hardware_configs['LeftLegMeta']
+        right_leg_mac = hardware_configs['RightLegMeta']
+        
+        self.add_hardware(MetaMotionRLHW(self, name='LeftHandMeta', MAC=left_hand_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='RightHandMeta', MAC=right_hand_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='LeftLegMeta', MAC=left_leg_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='RightLegMeta', MAC=right_leg_mac))
         
         #Add measurement components
         print("Create Measurement objects")
@@ -42,7 +52,8 @@ class AgencySensor(BaseMicroscopeApp):
 
 
 if __name__ == '__main__':
-    import sys
+  
+    
     # set the logger to info level in FanceyMicroscopeApp
     
     app = AgencySensor(sys.argv, dark_mode=True)
