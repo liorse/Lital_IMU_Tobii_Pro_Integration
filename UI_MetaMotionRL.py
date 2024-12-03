@@ -202,16 +202,14 @@ class MetaWearUI(Measurement):
             # if enabled will create an HDF5 file with the plotted data
             # first we create an H5 file (by default autosaved to app.settings['save_dir']
             # This stores all the hardware and app meta-data in the H5 file
-            self.h5file = h5_io.h5_base_file(app=self.app, measurement=self)
+            self.taskUI = self.app.measurements["Task Management"]
+            
+            fname = self.app.settings['save_dir'] + "/" + self.taskUI.settings['task_ID']+ ".sensor.h5"
+            self.h5file = h5_io.h5_base_file(app=self.app, measurement=self, fname=fname)
             
             # create a measurement H5 group (folder) within self.h5file
             # This stores all the measurement meta-data in this group
             self.h5_group = h5_io.h5_create_measurement_group(measurement=self, h5group=self.h5file)
-            
-            # create an h5 dataset to store the data
-            self.buffer_h5 = self.h5_group.create_dataset(name  = 'buffer', 
-                                                          shape = self.buffer.shape,
-                                                          dtype = self.buffer.dtype)
             
             # create four datasets to store the acceleration data with unlimited size with chunk size 1000
             # the dataset will hold the acceleratoin data and timestamp data
