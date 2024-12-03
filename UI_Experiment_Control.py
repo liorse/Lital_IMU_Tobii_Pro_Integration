@@ -360,6 +360,12 @@ class ExperimentControllerUI(Measurement):
                 self.scheduler.pause_job(job_id="step_timer")
                 self.pause_time = datetime.now(timezone.utc)
                 self.ui.pause_stimuli_pushButton.setText("Resume Task")
+
+                # save pause time to the h5 file
+                if self.settings['save_h5']:
+                    self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+                    self.events_h5[-1] = ["Pause", "Start", datetime.now().isoformat()]
+
         elif self.state == "paused":
             self.state = "running"
             elapsed_pause_time = datetime.now(timezone.utc) - self.pause_time
@@ -374,6 +380,11 @@ class ExperimentControllerUI(Measurement):
 
             #self.scheduler.resume_job(job_id="step_timer")
             self.ui.pause_stimuli_pushButton.setText("Pause Task")
+
+            # save resume time to the h5 file
+            if self.settings['save_h5']:
+                self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+                self.events_h5[-1] = ["Pause", "End", datetime.now().isoformat()]
 
 
     
@@ -470,15 +481,12 @@ class ExperimentControllerUI(Measurement):
 
             # Define column names for the events data
 
-            event_columns = ["Event Type", "Start Time", "End Time"]
+            event_columns = ["Event Name", "Event Type", "Event Time"]
             self.events_h5.attrs['columns'] = event_columns
             # Save the start time of the task
-            start_time = datetime.now().isoformat()
             self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
-            self.events_h5[-1] = ["Task", start_time, ""]
-            self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
-
-
+            self.events_h5[-1] = ["Task", "Start", datetime.now().isoformat()]
+            
             # save the step structure data to the h5 file
             # Define column names for the step structure data
             step_structure_columns = ["Step Number", "Step Description", "Step Duration [sec]", "Limb Connected to Mobile", "Background Music"]
@@ -542,6 +550,11 @@ class ExperimentControllerUI(Measurement):
                     step_duration = self.step_structure_data[self.current_step][2]
                     limb_connected_to_mobile = self.step_structure_data[self.current_step][3]
                     background_music = self.step_structure_data[self.current_step][4]
+
+                    # save the start time of the step
+                    if self.settings['save_h5']:
+                        self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+                        self.events_h5[-1] = [step_description, "Start", datetime.now().isoformat()]
 
                     # Initialize Hardware 
                     if step_description == "Fixation":
@@ -634,6 +647,11 @@ class ExperimentControllerUI(Measurement):
                 # if the timer expired, move to the next step
                 if self.timer_expired:
 
+                    # save the end time of the step
+                    if self.settings['save_h5']:
+                        self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+                        self.events_h5[-1] = [step_description, "End", datetime.now().isoformat()]
+
                     if self.previous_step != -1:
                         self.total_elapsed_time_seconds += step_duration
                     
@@ -668,6 +686,12 @@ class ExperimentControllerUI(Measurement):
         finally:            
 
             print("Experiment is finished")
+
+            # save the end time of the task
+            if self.settings['save_h5']:
+                self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+                self.events_h5[-1] = ["Task", "End", datetime.now().isoformat()]
+                
             print("stop streaming sensor data")
             self.metawear_ui.interrupt()
 

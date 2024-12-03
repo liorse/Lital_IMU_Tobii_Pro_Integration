@@ -6,12 +6,12 @@ tasks:
     background_music: false
   - step_number: 2
     step_description: "Base Line"
-    step_duration_sec: 30
+    step_duration_sec: 3
     limb_connected_to_mobile: "None"
     background_music: true
   - step_number: 3
     step_description: "Connect"
-    step_duration_sec: 30
+    step_duration_sec: 3
     limb_connected_to_mobile: "Left Hand"
     background_music: false
   - step_number: 4
