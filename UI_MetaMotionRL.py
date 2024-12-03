@@ -143,12 +143,15 @@ class MetaWearUI(Measurement):
         self.plot.enableAutoRange('y', False) # allow manual y-axis range adjustment
         self.plot.setYRange(0, 2) # set initial y-axis range
 
+        # add legend for the four limbs
+        self.plot.addLegend()
+
         # Create PlotDataItem object ( a scatter plot on the axes )
-        self.lefthand_plot = self.plot.plot(pen='r', name = "left hand acc")  # a line in the plot for the data
+        self.lefthand_plot = self.plot.plot(pen='r', name = "Left Hand")  # a line in the plot for the data
         # anothe line in the plot for all the other data
-        self.righthand_plot = self.plot.plot(pen='g', name = "right hand acc")
-        self.leftleg_plot = self.plot.plot(pen='b', name = "left leg acc")
-        self.rightleg_plot = self.plot.plot(pen='y', name = "right leg acc")
+        self.righthand_plot = self.plot.plot(pen='g', name = "Right Hand")
+        self.leftleg_plot = self.plot.plot(pen='b', name = "Left Leg")
+        self.rightleg_plot = self.plot.plot(pen='y', name = "Right Leg")
 
 
         # connect to data update signal
