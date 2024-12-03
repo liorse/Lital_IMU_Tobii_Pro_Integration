@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem, QComboBox, QCheckBox, QWidget, QStyleOptionComboBox, QStyleOptionButton, QStyle,
     QStyledItemDelegate, QTableView, QVBoxLayout, QHeaderView, QApplication, QSizePolicy, QStyleOptionViewItem
 )
+import h5py
 
 class ComboBoxDelegate(QStyledItemDelegate):
     def __init__(self, items, parent=None):
@@ -230,6 +231,9 @@ class ExperimentControllerUI(Measurement):
         self.step_description = "No_step"
         self.state = "stopped" # idle, running, paused, stopped
         self.remaining_time_in_step = 0
+        self.running_elapsed_time = 0
+        self.total_time_seconds = 1
+        self.remaining_time_seconds = 0
 
     def setup_figure(self):
         """
@@ -460,6 +464,21 @@ class ExperimentControllerUI(Measurement):
                                                                       shape = (len(self.step_structure_data), 5),
                                                                       dtype = 'S100')
             
+            # create an h5 dataset to save the events in the task, such as start time and end time of each step
+            
+            self.events_h5 = self.h5_group.create_dataset(name='events', shape=(0, 3), maxshape=(None, 3), dtype=h5py.special_dtype(vlen=str))
+
+            # Define column names for the events data
+
+            event_columns = ["Event Type", "Start Time", "End Time"]
+            self.events_h5.attrs['columns'] = event_columns
+            # Save the start time of the task
+            start_time = datetime.now().isoformat()
+            self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+            self.events_h5[-1] = ["Task", start_time, ""]
+            self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
+
+
             # save the step structure data to the h5 file
             # Define column names for the step structure data
             step_structure_columns = ["Step Number", "Step Description", "Step Duration [sec]", "Limb Connected to Mobile", "Background Music"]
