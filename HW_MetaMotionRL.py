@@ -13,6 +13,7 @@ from time import sleep
 e = Event()
 import threading
 from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 
 class AccelerationData:
     def __init__(self, acceleration, time):
@@ -65,6 +66,20 @@ class MetaMotionRLHW(HardwareComponent):
         print("Scanning for devices complete")
 
     def data_handler(self, ctx, data):
+        """
+        Handles incoming data, processes it, and emits an updated acceleration data signal.
+        Args:
+            ctx: The context in which the data is received.
+            data: The raw data received from the sensor.
+        Processes:
+            - Parses the raw data to extract acceleration values.
+            - Computes the magnitude of the acceleration vector.
+            - Emits the updated acceleration data with a timestamp.
+            - Calculates and prints the number of times this function is called per second.
+        Attributes:
+            last_time (float): The timestamp of the last function call.
+            call_count (int): The number of times the function has been called in the current second.
+        """
         acc_data = parse_value(data)
         acc_data = np.sqrt(acc_data.x**2 + acc_data.y**2 + acc_data.z**2)
         self.acc_data_updated.emit(AccelerationData(acc_data, time.time()))

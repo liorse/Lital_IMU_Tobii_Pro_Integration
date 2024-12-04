@@ -257,15 +257,11 @@ class MetaWearUI(Measurement):
             
             # Will run forever until interrupt is called.
             while not self.interrupt_measurement_called:
-                #i %= len(self.buffer)
+                i %= len(self.buffer)
                 
                 # Set progress bar percentage complete
-                #self.settings['progress'] = i * 100./len(self.buffer)
+                self.settings['progress'] = i * 100./len(self.buffer)
                 
-                # Fills the buffer with sine wave readings from func_gen Hardware
-                #self.buffer[i] = self.func_gen.settings.sine_data.read_from_hardware()
-                
-
                 if self.settings['save_h5']:
                     # resizes the dataset to fit the new data
                     # pop from lefthand_data queue and save to h5 file
