@@ -254,7 +254,8 @@ class ExperimentControllerUI(Measurement):
         self.ui.trial_number_spinBox.valueChanged.connect(self.update_task_ID)
 
         self.ui.pause_stimuli_pushButton.clicked.connect(self.pause)
-  
+        self.ui.next_step_pushButton.clicked.connect(self.next_step)
+
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()
         self.ui.plot_groupBox.layout().addWidget(self.graph_layout)
@@ -352,6 +353,10 @@ class ExperimentControllerUI(Measurement):
         self.ui.stop_stimuli_pushButton.clicked.connect(self.interrupt)
         self.task_table_model.itemChanged.connect(self.on_item_changed)
         self.update_task_ID()
+
+    def next_step(self):
+        if self.scheduler.get_job(job_id='step_timer') and self.state != "paused":
+            self.timer_expired = True
 
     def pause(self):
         if self.state == "running":
