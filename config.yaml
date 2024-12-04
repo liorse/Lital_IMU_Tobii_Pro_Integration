@@ -34,3 +34,11 @@ hardware:
     MAC: "E1:39:04:67:C2:9B"
   - name: "RightLegMeta"
     MAC: "C7:B2:76:3D:6B:1D"
+    
+music:
+  background_music_file: "./media/background-piano-music.mp3"
+  background_music_volume: 1
+  step_end_sound_file: "./media/bingbong.wav"
+  step_end_sound_volume: 1
+  fixation_sound_file: "./media/Fixation_resized_standard.wav"
+  fixation_sound_volume: 1

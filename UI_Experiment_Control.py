@@ -587,8 +587,14 @@ class ExperimentControllerUI(Measurement):
                         # Play the the relevant fixation sound
                         # Initialize pygame mixer
                         # Load the WAV file
-                        pygame.mixer.music.load('./media/Fixation_resized_standard.wav')
-
+                        
+                        with open('config.yaml', 'r') as file:
+                                config = yaml.safe_load(file)
+                        fixation_sound_file = config['music']['fixation_sound_file']
+                        volume = config['music'].get('background_music_volume', 0.5)
+                        pygame.mixer.music.set_volume(volume)
+                        pygame.mixer.music.load(fixation_sound_file)
+                        
                         # Play the WAV file
                         pygame.mixer.music.play()
                         
@@ -623,7 +629,13 @@ class ExperimentControllerUI(Measurement):
                         # Initialize pygame mixer
                         if background_music:
                             # Load the WAV file for the background music
-                            pygame.mixer.music.load('./media/background-piano-music.mp3')
+                            # read file path and name from config.yaml
+                            with open('config.yaml', 'r') as file:
+                                config = yaml.safe_load(file)
+                            background_music_file = config['music']['background_music_file']
+                            volume = config['music'].get('background_music_volume', 0.5)
+                            pygame.mixer.music.set_volume(volume)
+                            pygame.mixer.music.load(background_music_file)
                             # Play the WAV file
                             pygame.mixer.music.play()
                         
@@ -670,7 +682,12 @@ class ExperimentControllerUI(Measurement):
                         pygame.mixer.music.stop()
                     
                     # play a sound to indicate the end of the step
-                    pygame.mixer.music.load('./media/bingbong.wav')
+                    with open('config.yaml', 'r') as file:
+                                config = yaml.safe_load(file)
+                    step_end_sound_file = config['music']['step_end_sound_file']
+                    volume = config['music'].get('step_end_sound_volume', 0.5)
+                    pygame.mixer.music.set_volume(volume)
+                    pygame.mixer.music.load(step_end_sound_file)
                     pygame.mixer.music.play()
 
                     # wait until sound is finished
