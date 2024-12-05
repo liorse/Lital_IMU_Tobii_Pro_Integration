@@ -4,6 +4,7 @@ from ScopeFoundry import h5_io
 import pyqtgraph as pg
 import numpy as np
 from time import sleep
+import time
 
 # this class is used to store the acceleration data buffer and its corresponding time buffer
 class AccelerationDataBuffer(object):
@@ -11,6 +12,8 @@ class AccelerationDataBuffer(object):
         self.buffer_size = buffer_size
         self.acceleration_data = np.zeros(buffer_size, dtype=float)
         self.time_data = np.zeros(buffer_size, dtype=float)
+        # fill all self.timedata with time.time() values
+        self.time_data[:] = time.time()
         self.queue = []
 
     def add_data(self, acc_data, time_data):
@@ -209,8 +212,12 @@ class MetaWearUI(Measurement):
             self.taskUI = self.app.measurements["Task Management"]
             
             fname = self.app.settings['save_dir'] + "/" + self.taskUI.settings['task_ID']+ ".sensor.h5"
-            self.h5file = h5_io.h5_base_file(app=self.app, measurement=self, fname=fname)
-            
+            try:
+                self.h5file = h5_io.h5_base_file(app=self.app, measurement=self, fname=fname)
+            except Exception as err:
+                self.h5file = h5_io.h5_base_file(app=self.app, measurement=self)
+                
+    
             # create a measurement H5 group (folder) within self.h5file
             # This stores all the measurement meta-data in this group
             self.h5_group = h5_io.h5_create_measurement_group(measurement=self, h5group=self.h5file)
@@ -251,6 +258,12 @@ class MetaWearUI(Measurement):
         #self.RightHandMeta.operations['start_stream']()
         #self.LeftLegMeta.operations['start_stream']()
         #self.RightLegMeta.operations['start_stream']()
+
+        DataLength = 500
+        self.lefthand_data = AccelerationDataBuffer(DataLength)
+        self.righthand_data = AccelerationDataBuffer(DataLength)
+        self.leftleg_data = AccelerationDataBuffer(DataLength)
+        self.rightleg_data = AccelerationDataBuffer(DataLength)
 
         try:
             i = 0
