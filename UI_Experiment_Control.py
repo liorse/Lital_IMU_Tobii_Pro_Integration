@@ -458,7 +458,9 @@ class ExperimentControllerUI(Measurement):
         """
         
         self.state = "running" # idle, running, paused, stopped
-
+        self.settings['save_h5'] = True # make sure we are saving the data
+        self.metawear_ui.settings['save_h5'] = True # make sure we are saving the data
+        
         # first, create a data file
         if self.settings['save_h5']:
             # if enabled will create an HDF5 file with the plotted data
