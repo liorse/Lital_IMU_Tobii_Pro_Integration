@@ -7,3 +7,4 @@
 *.mov
 *.ini
 !requirements.txt
+*.csv
