@@ -25,8 +25,8 @@ class AccelerationDataBuffer(object):
     def get_data(self):
         return self.acceleration_data, self.time_data
     
-    def add_to_queue(self, time_data, acc_data):
-        self.queue.append((time_data, acc_data))
+    def add_to_queue(self, time_data, acc_data_x, acc_data_y, acc_data_z):
+        self.queue.append((time_data, acc_data_x, acc_data_y, acc_data_z))
         if len(self.queue) > self.buffer_size:
             self.queue.pop(0)
     
@@ -167,25 +167,25 @@ class MetaWearUI(Measurement):
         #print(f"Acceleration of {self.LeftLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left leg data
         self.leftleg_data.add_data(acc_data.acceleration, acc_data.time)
-        self.leftleg_data.add_to_queue(acc_data.time, acc_data.acceleration)
+        self.leftleg_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
         
     def update_right_leg_data(self, acc_data):
         #print(f"Acceleration of {self.RightLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right leg data
         self.rightleg_data.add_data(acc_data.acceleration, acc_data.time)
-        self.rightleg_data.add_to_queue(acc_data.time, acc_data.acceleration)
+        self.rightleg_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
 
     def update_left_hand_data(self, acc_data):
         #print(f"Acceleration of {self.LeftHandMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left hand data
         self.lefthand_data.add_data(acc_data.acceleration, acc_data.time)
-        self.lefthand_data.add_to_queue(acc_data.time, acc_data.acceleration)
+        self.lefthand_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
 
     def update_right_hand_data(self, acc_data):
         #print(f"Acceleration of {self.RightHandMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right hand data
         self.righthand_data.add_data(acc_data.acceleration, acc_data.time)
-        self.righthand_data.add_to_queue(acc_data.time, acc_data.acceleration)
+        self.righthand_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
 
     def update_display(self):
         """
@@ -225,28 +225,28 @@ class MetaWearUI(Measurement):
             # create four datasets to store the acceleration data with unlimited size with chunk size 1000
             # the dataset will hold the acceleratoin data and timestamp data
             self.lefthand_data_h5 = self.h5_group.create_dataset(name='left_hand_data', 
-                 shape=(0, 2), 
-                 maxshape=(None, 2), 
-                 chunks=(1000, 2),
+                 shape=(0, 4), 
+                 maxshape=(None, 4), 
+                 chunks=(1000, 4),
                  dtype='f8')  # Use 'f8' for float64, which is a standard double-precision float
             
             # add for the other three limbs
             self.righthand_data_h5 = self.h5_group.create_dataset(name='right_hand_data', 
-                 shape=(0, 2), 
-                 maxshape=(None, 2), 
-                 chunks=(1000, 2),
+                 shape=(0, 4), 
+                 maxshape=(None, 4), 
+                 chunks=(1000, 4),
                  dtype='f8')
             
             self.leftleg_data_h5 = self.h5_group.create_dataset(name='left_leg_data', 
-                 shape=(0, 2), 
-                 maxshape=(None, 2), 
-                 chunks=(1000, 2),
+                 shape=(0, 4), 
+                 maxshape=(None, 4), 
+                 chunks=(1000, 4),
                  dtype='f8')
             
             self.rightleg_data_h5 = self.h5_group.create_dataset(name='right_leg_data', 
-                 shape=(0, 2), 
-                 maxshape=(None, 2), 
-                 chunks=(1000, 2),
+                 shape=(0, 4), 
+                 maxshape=(None, 4), 
+                 chunks=(1000, 4),
                  dtype='f8')
         # We use a try/finally block, so that if anything goes wrong during a measurement,
         # the finally block can clean things up, e.g. close the data file object.

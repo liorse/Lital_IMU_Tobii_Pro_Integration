@@ -16,12 +16,15 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 
 class AccelerationData:
-    def __init__(self, acceleration, time):
-        self.acceleration = acceleration  # float for acceleration
+    def __init__(self, acc_x, acc_y, acc_z, time):
+        self.acc_x = acc_x
+        self.acc_y = acc_y
+        self.acc_z = acc_z
         self.time = time  # QTime object for time
+        self.acceleration = np.sqrt(acc_x**2 + acc_y**2 + acc_z**2)
 
     def __repr__(self):
-        return f"AccelerationData(acceleration={self.acceleration}, time={self.time.toString('HH:mm:ss')})"
+        return f"AccelerationData(acc_x={self.acc_x}, acc_y={self.acc_y}, acc_z={self.acc_z}, time={self.time.toString('HH:mm:ss')})"
     
 
 class MetaMotionRLHW(HardwareComponent):
@@ -81,9 +84,14 @@ class MetaMotionRLHW(HardwareComponent):
             call_count (int): The number of times the function has been called in the current second.
         """
         acc_data = parse_value(data)
-        acc_data = np.sqrt(acc_data.x**2 + acc_data.y**2 + acc_data.z**2)
-        self.acc_data_updated.emit(AccelerationData(acc_data, time.time()))
-
+        #acc_data = np.sqrt(acc_data.x**2 + acc_data.y**2 + acc_data.z**2)
+        # insert a breakpoint here to debug the data
+        #print(acc_data.x, acc_data.y, acc_data.z)
+        x = acc_data.x
+        y = acc_data.y
+        z = acc_data.z
+        self.acc_data_updated.emit(AccelerationData(x, y, z, time.time()))
+        
         #print("Linear Acceleration: ({0}, {1}, {2})".format(data.x, data.y, data.z))
         #print(parse_value(data), data.contents.epoch)
         # construct code to calculate the times per second this function is called
