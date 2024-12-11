@@ -144,7 +144,7 @@ class MetaWearUI(Measurement):
         # Create PlotItem object (a set of axes)  
         self.plot = self.graph_layout.addPlot(title="Acceleration Data", axisItems={'bottom': pg.DateAxisItem()})
         self.plot.enableAutoRange('y', False) # allow manual y-axis range adjustment
-        self.plot.setYRange(0, 2) # set initial y-axis range
+        self.plot.setYRange(-2, 2) # set initial y-axis range
 
         # add legend for the four limbs
         self.plot.addLegend()
@@ -166,25 +166,40 @@ class MetaWearUI(Measurement):
     def update_left_leg_data(self, acc_data):
         #print(f"Acceleration of {self.LeftLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left leg data
-        self.leftleg_data.add_data(acc_data.acceleration, acc_data.time)
+        if self.ui.show_accel_mag.isChecked():
+            self.leftleg_data.add_data(acc_data.acceleration, acc_data.time)
+        else:
+            self.leftleg_data.add_data(acc_data.acc_x, acc_data.time)
+
+        #self.leftleg_data.add_data(acc_data.acceleration, acc_data.time)
         self.leftleg_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
         
     def update_right_leg_data(self, acc_data):
         #print(f"Acceleration of {self.RightLegMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right leg data
-        self.rightleg_data.add_data(acc_data.acceleration, acc_data.time)
+        if self.ui.show_accel_mag.isChecked():
+            self.rightleg_data.add_data(acc_data.acceleration, acc_data.time)
+        else:
+            self.rightleg_data.add_data(acc_data.acc_x, acc_data.time)
+        #self.rightleg_data.add_data(acc_data.acceleration, acc_data.time)
         self.rightleg_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
 
     def update_left_hand_data(self, acc_data):
         #print(f"Acceleration of {self.LeftHandMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to left hand data
-        self.lefthand_data.add_data(acc_data.acceleration, acc_data.time)
+        if self.ui.show_accel_mag.isChecked():
+            self.lefthand_data.add_data(acc_data.acceleration, acc_data.time)
+        else:
+            self.lefthand_data.add_data(acc_data.acc_x, acc_data.time)
         self.lefthand_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
 
     def update_right_hand_data(self, acc_data):
         #print(f"Acceleration of {self.RightHandMeta.MAC}: {acc_data}")
         # add acc_data to the buffer to right hand data
-        self.righthand_data.add_data(acc_data.acceleration, acc_data.time)
+        if self.ui.show_accel_mag.isChecked():
+            self.righthand_data.add_data(acc_data.acceleration, acc_data.time)
+        else:
+            self.righthand_data.add_data(acc_data.acc_x, acc_data.time)
         self.righthand_data.add_to_queue(acc_data.time, acc_data.acc_x, acc_data.acc_y, acc_data.acc_z)
 
     def update_display(self):

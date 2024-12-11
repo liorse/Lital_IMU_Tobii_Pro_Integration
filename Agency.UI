@@ -33,8 +33,158 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="stop_stream_pushButton">
+        <property name="text">
+         <string>Stop Streaming</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="4">
+       <widget class="QDoubleSpinBox" name="right_leg_spinbox">
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>200.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QDoubleSpinBox" name="left_hand_spinbox">
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>200.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QLabel" name="amp_label_4">
+        <property name="text">
+         <string>Right Arm DataRate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QDoubleSpinBox" name="Battery_Left_leg_spinBox">
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string> %</string>
+        </property>
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QDoubleSpinBox" name="right_hand_spinbox">
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>200.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="start_stream_pushButton">
+        <property name="text">
+         <string>Start Streaming</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QCheckBox" name="RightArmStreamCheckBox">
+        <property name="text">
+         <string>Right arm stream</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="RightLegConnectCheckBox">
+        <property name="text">
+         <string>Right leg Connect</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="0">
        <widget class="QDoubleSpinBox" name="Battery_Left_hand_spinBox">
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="suffix">
+         <string> %</string>
+        </property>
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QDoubleSpinBox" name="datarate_spinBox">
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>200.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QPushButton" name="Scan_metawear_pushButton">
+        <property name="text">
+         <string>Scan for MetaWear</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QDoubleSpinBox" name="Battery_Right_leg_spinBox">
         <property name="frame">
          <bool>true</bool>
         </property>
@@ -68,15 +218,8 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="disconnect_pushButton">
-        <property name="text">
-         <string>Disconnect</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="4">
-       <widget class="QDoubleSpinBox" name="right_hand_spinbox">
+      <item row="5" column="4">
+       <widget class="QDoubleSpinBox" name="left_leg_spinbox">
         <property name="decimals">
          <number>0</number>
         </property>
@@ -88,71 +231,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="stop_stream_pushButton">
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="LeftArmConnectCheckBox">
         <property name="text">
-         <string>Stop Streaming</string>
+         <string>Left arm Connect</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QCheckBox" name="RightArmStreamCheckBox">
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="LeftArmStreamCheckBox">
         <property name="text">
-         <string>Right arm stream</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QCheckBox" name="save_h5_checkBox">
-        <property name="text">
-         <string>Save H5</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QDoubleSpinBox" name="datarate_spinBox">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>200.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="start_stream_pushButton">
-        <property name="text">
-         <string>Start Streaming</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="3">
-       <widget class="QLabel" name="amp_label_4">
-        <property name="text">
-         <string>Right Arm DataRate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLabel" name="amp_label_2">
-        <property name="text">
-         <string>Left Arm Data Rate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QDoubleSpinBox" name="left_hand_spinbox">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>200.000000000000000</double>
+         <string>Left arm stream</string>
         </property>
        </widget>
       </item>
@@ -184,37 +273,10 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="3">
-       <widget class="QLabel" name="amp_label_3">
+      <item row="2" column="3">
+       <widget class="QLabel" name="amp_label_2">
         <property name="text">
-         <string>Left Leg Data Rate</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="LeftArmConnectCheckBox">
-        <property name="text">
-         <string>Left arm Connect</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="4">
-       <widget class="QDoubleSpinBox" name="right_leg_spinbox">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>200.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QCheckBox" name="RightArmConnectCheckBox">
-        <property name="text">
-         <string>Right arm Connect</string>
+         <string>Left Arm Data Rate</string>
         </property>
        </widget>
       </item>
@@ -232,30 +294,17 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="4">
-       <widget class="QDoubleSpinBox" name="left_leg_spinbox">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>200.000000000000000</double>
+      <item row="5" column="2">
+       <widget class="QCheckBox" name="LeftLegStreamCheckBox">
+        <property name="text">
+         <string>Left leg stream</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QCheckBox" name="LeftArmStreamCheckBox">
+      <item row="5" column="3">
+       <widget class="QLabel" name="amp_label_3">
         <property name="text">
-         <string>Left arm stream</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QPushButton" name="Scan_metawear_pushButton">
-        <property name="text">
-         <string>Scan for MetaWear</string>
+         <string>Left Leg Data Rate</string>
         </property>
        </widget>
       </item>
@@ -266,73 +315,31 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QCheckBox" name="LeftLegStreamCheckBox">
+      <item row="1" column="1">
+       <widget class="QPushButton" name="disconnect_pushButton">
         <property name="text">
-         <string>Left leg stream</string>
+         <string>Disconnect</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="QCheckBox" name="RightLegConnectCheckBox">
+      <item row="0" column="3">
+       <widget class="QCheckBox" name="save_h5_checkBox">
         <property name="text">
-         <string>Right leg Connect</string>
+         <string>Save H5</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QDoubleSpinBox" name="Battery_Left_leg_spinBox">
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="suffix">
-         <string> %</string>
-        </property>
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>100.000000000000000</double>
+      <item row="4" column="1">
+       <widget class="QCheckBox" name="RightArmConnectCheckBox">
+        <property name="text">
+         <string>Right arm Connect</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QDoubleSpinBox" name="Battery_Right_leg_spinBox">
-        <property name="frame">
-         <bool>true</bool>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="suffix">
-         <string> %</string>
-        </property>
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>100.000000000000000</double>
+      <item row="8" column="2">
+       <widget class="QCheckBox" name="show_accel_mag">
+        <property name="text">
+         <string>Show Accel Mag</string>
         </property>
        </widget>
       </item>
