@@ -14,11 +14,16 @@ class AgencySensor(BaseMicroscopeApp):
     # when storing data
     name = 'Agency Sensor'
     
+
     # You must define a setup function that adds all the 
     # capablities of the microscope and sets default settings
     def setup(self):
         
         #Add App wide settings
+        self.settings.New('Version', dtype=str, initial='1.0.0')
+
+        # the version number to App name
+        self.name = 'Agency Sensor v{}'.format(self.settings['Version'])
         
         #Add hardware components
         print("Adding Hardware Components")
