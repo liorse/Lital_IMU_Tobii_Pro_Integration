@@ -6,7 +6,7 @@ import numpy as np
 import time
 import zmq
 import subprocess
-
+import atexit
 
 class MobileControllerUI(Measurement):
     
@@ -216,6 +216,20 @@ class MobileControllerUI(Measurement):
         """
         pass
 
+    def terminate_stimuli_process(self):
+        try:
+            self.stimuli_process.terminate()
+            self.stimuli_process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            self.stimuli_process.kill()
+    
+    def terminate_stimuli_sound_process(self):
+        try:
+            self.stimuli_sound_process.terminate()
+            self.stimuli_sound_process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            self.stimuli_sound_process.kill()
+        
     def run(self):
         """
         Runs when measurement is started. Runs in a separate thread from GUI.
@@ -253,9 +267,11 @@ class MobileControllerUI(Measurement):
 
         # run the stimuli visualizer in a seperate process using the shell
         self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
+        atexit.register(self.terminate_stimuli_process)
 
         # run the stimuli sound in a seperate process using the shell
         self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py"])
+        atexit.register(self.terminate_stimuli_sound_process)
 
         #self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
         #self.LeftHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
