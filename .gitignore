@@ -8,3 +8,5 @@
 *.ini
 !requirements.txt
 *.csv
+config.yaml
+config_first_sensors.yaml

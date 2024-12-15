@@ -1,3 +1,11 @@
+
+Version 1.0.1
+
+1. cleanly exiting the application by terminating the mobile subprocess if the exist. thereby allowing for a clean rerun of the application
+
+2. 
+
+
 To install run:
 install 
 1. miniconda 64 bit 
