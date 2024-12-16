@@ -524,6 +524,9 @@ class ExperimentControllerUI(Measurement):
 
             # Will run forever until interrupt is called.
             # Start Streaming Sensor Data and initiate saving the data
+            if not self.metawear_ui.interrupt_measurement_called:
+                self.metawear_ui.interrupt()
+                time.sleep(0.5)
             self.metawear_ui.start()
 
             # calculate total time of the task:

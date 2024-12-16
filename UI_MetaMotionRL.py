@@ -228,7 +228,10 @@ class MetaWearUI(Measurement):
             
             fname = self.app.settings['save_dir'] + "/" + self.taskUI.settings['task_ID']+ ".sensor.h5"
             try:
-                self.h5file = h5_io.h5_base_file(app=self.app, measurement=self, fname=fname)
+                if self.taskUI.state == 'running':
+                    self.h5file = h5_io.h5_base_file(app=self.app, measurement=self, fname=fname)
+                else:
+                    self.h5file = h5_io.h5_base_file(app=self.app, measurement=self)
             except Exception as err:
                 self.h5file = h5_io.h5_base_file(app=self.app, measurement=self)
                 
