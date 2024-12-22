@@ -210,16 +210,19 @@
       <item row="8" column="5">
        <widget class="QDoubleSpinBox" name="acceleration_threshold_spinBox">
         <property name="decimals">
-         <number>1</number>
+         <number>2</number>
         </property>
         <property name="minimum">
-         <double>0.100000000000000</double>
+         <double>0.010000000000000</double>
         </property>
         <property name="maximum">
          <double>16.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.010000000000000</double>
+        </property>
+        <property name="stepType">
+         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
         </property>
         <property name="value">
          <double>0.600000000000000</double>

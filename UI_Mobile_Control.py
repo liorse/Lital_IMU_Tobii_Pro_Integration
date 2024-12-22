@@ -37,7 +37,7 @@ class MobileControllerUI(Measurement):
         self.settings.New('sampling_period', dtype=float, unit='s', initial=0.1)
         
         # mobile settings
-        self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.6, vmin=0.0, vmax=16.0)
+        self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.60, vmin=0.00, vmax=16.00)
         self.settings.New('min_movie_speed', dtype=float, unit='fps', initial=60, vmin=0, vmax=70)
         self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=90, vmin=0, vmax=151)
         self.settings.New('min_sound_speed', dtype=float, unit='', initial=1.0, vmin=1.0, vmax=5.0)
