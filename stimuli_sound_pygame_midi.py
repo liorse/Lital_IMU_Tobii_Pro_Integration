@@ -61,9 +61,10 @@ def play_midi_in_real_time(file_path):
             # Adjust volume by scaling the velocity
             if message.velocity > 0:  # Only adjust if there's a note_on event
                 original_velocity = message.velocity
-                message.velocity = int(original_velocity * current_volume)
-                message.velocity = max(0, min(message.velocity, 127))  # Clamp to MIDI range
-
+                #message.velocity = int(original_velocity * current_volume)
+                message.velocity = max(0, min(int(original_velocity * current_volume), 126))  # Clamp to MIDI range
+                #print(f"Velocity adjusted from {original_velocity} to {message.velocity}")
+                #print(message.bytes())
             # Send the MIDI message to the output
             midi_out.write_short(message.bytes()[0], message.bytes()[1], message.bytes()[2])
 
