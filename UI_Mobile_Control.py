@@ -38,8 +38,8 @@ class MobileControllerUI(Measurement):
         
         # mobile settings
         self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.6, vmin=0.0, vmax=16.0)
-        self.settings.New('min_movie_speed', dtype=float, unit='fps', initial=0, vmin=0, vmax=20)
-        self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=60, vmin=0, vmax=151)
+        self.settings.New('min_movie_speed', dtype=float, unit='fps', initial=60, vmin=0, vmax=70)
+        self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=90, vmin=0, vmax=151)
         self.settings.New('min_sound_speed', dtype=float, unit='', initial=1.0, vmin=1.0, vmax=5.0)
         self.settings.New('max_sound_speed', dtype=float, unit='', initial=2.0, vmin=1.0, vmax=5.0)
         self.settings.New('min_sound_volume', dtype=float, unit='', initial=0.1, vmin=0.1, vmax=1.5)
@@ -110,7 +110,7 @@ class MobileControllerUI(Measurement):
                                           self.ui.max_acceleration_spinBox.value(), 
                                           self.ui.min_movie_speed_spinBox.value(), 
                                           self.ui.max_movie_speed_spinBox.value()))
-        capped_value = max(0, min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
+        capped_value = max(self.ui.min_movie_speed_spinBox.value(), min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
         if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
             capped_value = 0
         #self.socket.send_string(str(int(capped_value)))
