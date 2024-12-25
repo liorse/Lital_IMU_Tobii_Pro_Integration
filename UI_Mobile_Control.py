@@ -7,6 +7,7 @@ import time
 import zmq
 import subprocess
 import atexit
+import threading
 
 class MobileControllerUI(Measurement):
     
@@ -37,17 +38,20 @@ class MobileControllerUI(Measurement):
         self.settings.New('sampling_period', dtype=float, unit='s', initial=0.1)
         
         # mobile settings
+        self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=120, vmin=0, vmax=151)
+
+        # Zaadnoordijk Model
         self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.60, vmin=0.00, vmax=16.00)
-        self.settings.New('min_movie_speed', dtype=float, unit='fps', initial=60, vmin=0, vmax=70)
-        self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=90, vmin=0, vmax=151)
-        self.settings.New('min_sound_speed', dtype=float, unit='', initial=1.0, vmin=1.0, vmax=5.0)
-        self.settings.New('max_sound_speed', dtype=float, unit='', initial=2.0, vmin=1.0, vmax=5.0)
-        self.settings.New('min_sound_volume', dtype=float, unit='', initial=0.1, vmin=0.1, vmax=1.5)
-        self.settings.New('max_sound_volume', dtype=float, unit='', initial=1.5, vmin=0.1, vmax=1.5)
-        self.settings.New('max_acceleration', dtype=float, unit='g', initial=1.0, vmin=1.0, vmax=8)
-        self.settings.New('min_acceleration', dtype=float, unit='g', initial=0.0, vmin=0.0, vmax=0.99)
+        self.settings.New('movie_play_time_when_acceleration_above_threshold', dtype=float, unit='ms', initial=650, vmin=0.00, vmax=10000.00)
+        self.settings.New('sensor_unresponsive_time', dtype=float, unit='ms', initial=650, vmin=0.00, vmax=10000.00)
+
+        # physical Model (Lior)
+        self.settings.New('friction_coef', dtype=float, initial=300, vmin=0.0, vmax=20000)
+        self.settings.New('mass_coef', dtype=float, initial=3000, vmin=0.0, vmax=20000)
 
         self.settings.New(name='limb_connected_to_mobile', initial= ('Left Hand', "_left_hand"), dtype=str, ro=False, choices= [ ('Left Hand', "_left_hand"), ('Right Hand', "_right_hand"), ('Left Leg', "_left_leg"), ('Right Leg', "_right_leg"), ('None', "_none")])
+        self.settings.New(name='model', initial= ('Zaadnoordijk', "_zaadnoordijk"), dtype=str, ro=False, choices= [ ('Zaadnoordijk', "_zaadnoordijk"), ('Physical', "_physical")])
+        
         self.settings.limb_connected_to_mobile.connect_to_hardware(write_func=self.set_limb_mobile_connection)
         
         # Define how often to update display during a run
@@ -63,8 +67,10 @@ class MobileControllerUI(Measurement):
 
         self.mapped_value_sound_speed = 0
         self.mapped_value_sound_volume = 0
+        self.next_movie_velocity = 0
+        self.movie_velocity = 0     
 
-        
+        self.triggable = True   
 
     def set_limb_mobile_connection(self, limb_connected_to_mobile):
 
@@ -100,54 +106,66 @@ class MobileControllerUI(Measurement):
 
         self.current_limb_connected_to_mobile = limb_connected_to_mobile
     
-    def map_value(self, x, in_min, in_max, out_min, out_max):
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
     def update_mobile_with_acc(self, acc_data):
-        # control the speed of the movie based on the acceleration of the left hand
-        mapped_value = int(self.map_value(acc_data.acceleration, 
-                                          self.ui.min_acceleration_spinBox.value(), 
-                                          self.ui.max_acceleration_spinBox.value(), 
-                                          self.ui.min_movie_speed_spinBox.value(), 
-                                          self.ui.max_movie_speed_spinBox.value()))
-        capped_value = max(self.ui.min_movie_speed_spinBox.value(), min(mapped_value, self.ui.max_movie_speed_spinBox.value()))  # Cap the value between 0 and 200
-        if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
-            capped_value = 0
-        #self.socket.send_string(str(int(capped_value)))
-        if hasattr(self, 'socket'):
-            try:
-                self.socket.send_multipart([b"mobile_movie", str(int(capped_value)).encode('utf-8')])
-            except zmq.error.ZMQError as e:
+        if self.settings['model'] == "_physical":
+            
+            # control the speed of the movie based on the acceleration of the left hand
+            dt = 0.01
+            friction_coef = self.ui.Friction_spinbox.value()
+            mass = self.ui.mass_coef_spin_box.value()
+
+            self.next_movie_velocity = self.movie_velocity + mass * acc_data.acceleration * dt - friction_coef * dt
+            if self.next_movie_velocity < 5 and self.next_movie_velocity - self.movie_velocity < 0 or self.next_movie_velocity < 0:
+                self.next_movie_velocity = 0
+
+            if self.next_movie_velocity > self.ui.max_movie_speed_spinBox.value():
+                self.next_movie_velocity = self.ui.max_movie_speed_spinBox.value()
+            
+            self.movie_velocity = self.next_movie_velocity
+
+            if hasattr(self, 'socket'):
+                try:
+                    self.socket.send_multipart([b"mobile_movie", str(int(self.next_movie_velocity)).encode('utf-8')])
+                except zmq.error.ZMQError as e:
+                    pass
+        elif self.settings['model'] == "_zaadnoordijk":
+            if self.triggable:
+                if acc_data.acceleration > self.settings['acceleration_threshold']:
+                    if hasattr(self, 'socket'):
+                        try:
+                            self.socket.send_multipart([b"mobile_movie", str(int(self.ui.max_movie_speed_spinBox.value())).encode('utf-8')])
+                            self.movie_velocity = self.ui.max_movie_speed_spinBox.value()
+                        except zmq.error.ZMQError as e:
+                            pass
+                    # start a timer to stop the movie after a certain time use a threading timer
+                    self.triggable = False
+                    threading.Timer(self.settings['movie_play_time_when_acceleration_above_threshold']/1000, self.stop_movie).start()
+            else:
                 pass
 
-        #print(f"Left Hand Acceleration: {acc_data.acceleration}, Mapped Value: {capped_value}")
+    def stop_movie(self):
+    
+        if hasattr(self, 'socket'):
+            try:
+                self.socket.send_multipart([b"mobile_movie", b"0"])
+                self.movie_velocity = 0
+            except zmq.error.ZMQError as e:
+                pass
+        # start another to define a dead time
+        threading.Timer(self.settings['sensor_unresponsive_time']/1000, self.make_movie_triggable_again).start()
+        
+    def make_movie_triggable_again(self):
+        self.triggable = True
 
     def update_sound_with_acc(self, acc_data):
+
         # control the speed and volume of the sound based on the acceleration of the left hand
-        mapped_value_sound_speed = self.map_value(acc_data.acceleration, 
-                                                  self.ui.min_acceleration_spinBox.value(), 
-                                                  self.ui.max_acceleration_spinBox.value(), 
-                                                  self.ui.min_sound_speed_spinBox.value(), 
-                                                  self.ui.max_sound_speed_spinBox.value())
-        mapped_value_sound_volume = self.map_value(acc_data.acceleration, 
-                                                   self.ui.min_acceleration_spinBox.value(), 
-                                                   self.ui.max_acceleration_spinBox.value(), 
-                                                   self.ui.min_sound_volume_spinBox.value(), 
-                                                   self.ui.max_sound_volume_spinBox.value())
-        
-        if mapped_value_sound_speed > self.ui.max_sound_speed_spinBox.value():
-            mapped_value_sound_speed = self.ui.max_sound_speed_spinBox.value()
-        if mapped_value_sound_volume > self.ui.max_sound_volume_spinBox.value():
-            mapped_value_sound_volume = self.ui.max_sound_volume_spinBox.value()
-    
-        if acc_data.acceleration < self.ui.acceleration_threshold_spinBox.value():
-            # make it silent but keep the speed of the sound @ 1.0 to maintain the speed of reacting to the acceleration
-            mapped_value_sound_speed = 1.0
+        if self.movie_velocity < 1:
+            mapped_value_sound_speed = 1
             mapped_value_sound_volume = 0.1
-        
-        # round to 1 decimal place both mapped values and send value only if it has changed
-        mapped_value_sound_speed = round(mapped_value_sound_speed, 1)
-        mapped_value_sound_volume = round(mapped_value_sound_volume, 1)
+        else:    
+            mapped_value_sound_speed = 2
+            mapped_value_sound_volume = 1.5
         
         if self.mapped_value_sound_speed != mapped_value_sound_speed and self.mapped_value_sound_volume != mapped_value_sound_volume:
             message = f"{mapped_value_sound_speed},{mapped_value_sound_volume}"
@@ -174,8 +192,16 @@ class MobileControllerUI(Measurement):
         self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
         self.LeftHandMeta.acc_data_updated.connect(self.update_sound_with_acc)
 
-        self.settings.max_acceleration.connect_to_widget(self.ui.max_acceleration_spinBox)
-        self.settings.min_acceleration.connect_to_widget(self.ui.min_acceleration_spinBox)
+        # Set up Zaadnoordijk Model
+        self.settings.acceleration_threshold.connect_to_widget(self.ui.acceleration_threshold_spinBox)
+        self.settings.movie_play_time_when_acceleration_above_threshold.connect_to_widget(self.ui.Movie_Playtime_spinBox)
+        self.settings.sensor_unresponsive_time.connect_to_widget(self.ui.Deadtime_spinBox)
+
+        # Set up physical Model (Lior)
+        self.settings.friction_coef.connect_to_widget(self.ui.Friction_spinbox)
+        self.settings.mass_coef.connect_to_widget(self.ui.mass_coef_spin_box)
+
+        self.settings.model.connect_to_widget(self.ui.Model_ComboBox)
 
         # Set up pyqtgraph graph_layout in the UI
         self.graph_layout=pg.GraphicsLayoutWidget()
@@ -187,17 +213,7 @@ class MobileControllerUI(Measurement):
         self.ui.fps_spinBox.valueChanged.connect(self.update_fps)
         self.ui.sound_volume_spinBox.valueChanged.connect(self.update_sound_volume_and_speed)
         self.ui.sound_speed_spinBox.valueChanged.connect(self.update_sound_volume_and_speed)
-        self.settings.acceleration_threshold.connect_to_widget(self.ui.acceleration_threshold_spinBox)
-        self.settings.min_movie_speed.connect_to_widget(self.ui.min_movie_speed_spinBox)
         self.settings.max_movie_speed.connect_to_widget(self.ui.max_movie_speed_spinBox)
-        self.settings.min_sound_speed.connect_to_widget(self.ui.min_sound_speed_spinBox)
-        self.settings.max_sound_speed.connect_to_widget(self.ui.max_sound_speed_spinBox)
-        self.settings.min_sound_volume.connect_to_widget(self.ui.min_sound_volume_spinBox)
-        self.settings.max_sound_volume.connect_to_widget(self.ui.max_sound_volume_spinBox)
-
-        #self.RightHandMeta.acc_data_updated.connect(self.update_right_hand_data)
-        #self.LeftLegMeta.acc_data_updated.connect(self.update_left_leg_data)
-        #self.RightLegMeta.acc_data_updated.connect(self.update_right_leg_data)
 
     def update_sound_volume_and_speed(self):
         message = f"{self.ui.sound_speed_spinBox.value()},{self.ui.sound_volume_spinBox.value()}"
