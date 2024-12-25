@@ -25,7 +25,7 @@ tasks:
     limb_connected_to_mobile: "Right Leg"
     background_music: false
 
-hardware:
+hardware_shiba:
   - name: "LeftHandMeta"
     MAC: "D5:17:53:77:EA:24"
   - name: "RightHandMeta"
@@ -34,7 +34,17 @@ hardware:
     MAC: "E2:98:72:8E:20:2A"
   - name: "RightLegMeta"
     MAC: "ED:A6:6D:CD:49:69"
-    
+
+hardware_hebrew:
+  - name: "LeftHandMeta"
+    MAC: "C2:26:C4:65:45:54"
+  - name: "RightHandMeta"
+    MAC: "F3:F1:E2:D3:6E:A7"
+  - name: "LeftLegMeta"
+    MAC: "E1:39:04:67:C2:9B"
+  - name: "RightLegMeta"
+    MAC: "C7:B2:76:3D:6B:1D"
+
 music:
   background_music_file: "./media/background-piano-music.mp3"
   background_music_volume: 1

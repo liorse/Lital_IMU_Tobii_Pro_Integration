@@ -14,32 +14,42 @@ class AgencySensor(BaseMicroscopeApp):
     # when storing data
     name = 'Agency Sensor'
     
+    def __init__(self, argv, dark_mode=False):
+        
+        # Load MAC addresses from config.yaml file
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+        
+        if len(argv) > 1:
+            if argv[1] == 'shiba':
+                hardware_configs = {item['name']: item['MAC'] for item in config['hardware_shiba']}
+            elif argv[1] == 'hebrew':
+                hardware_configs = {item['name']: item['MAC'] for item in config['hardware_hebrew']}
+            
+        self.left_hand_mac = hardware_configs['LeftHandMeta']
+        self.right_hand_mac = hardware_configs['RightHandMeta']
+        self.left_leg_mac = hardware_configs['LeftLegMeta']
+        self.right_leg_mac = hardware_configs['RightLegMeta']
+        # run the BaseMicroscopeApp __init__ function
+        BaseMicroscopeApp.__init__(self, argv, dark_mode=dark_mode)
 
     # You must define a setup function that adds all the 
     # capablities of the microscope and sets default settings
     def setup(self):
         
         #Add App wide settings
-        self.settings.New('Version', dtype=str, initial='1.0.2')
+        self.settings.New('Version', dtype=str, initial='1.0.3')
 
         # the version number to App name
         self.name = 'Agency Sensor v{}'.format(self.settings['Version'])
         
         #Add hardware components
         print("Adding Hardware Components")
-        # Load MAC addresses from config.yaml file
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-        hardware_configs = {item['name']: item['MAC'] for item in config['hardware']}
-        left_hand_mac = hardware_configs['LeftHandMeta']
-        right_hand_mac = hardware_configs['RightHandMeta']
-        left_leg_mac = hardware_configs['LeftLegMeta']
-        right_leg_mac = hardware_configs['RightLegMeta']
         
-        self.add_hardware(MetaMotionRLHW(self, name='LeftHandMeta', MAC=left_hand_mac))
-        self.add_hardware(MetaMotionRLHW(self, name='RightHandMeta', MAC=right_hand_mac))
-        self.add_hardware(MetaMotionRLHW(self, name='LeftLegMeta', MAC=left_leg_mac))
-        self.add_hardware(MetaMotionRLHW(self, name='RightLegMeta', MAC=right_leg_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='LeftHandMeta', MAC=self.left_hand_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='RightHandMeta', MAC=self.right_hand_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='LeftLegMeta', MAC=self.left_leg_mac))
+        self.add_hardware(MetaMotionRLHW(self, name='RightLegMeta', MAC=self.right_leg_mac))
         
         #Add measurement components
         print("Create Measurement objects")
