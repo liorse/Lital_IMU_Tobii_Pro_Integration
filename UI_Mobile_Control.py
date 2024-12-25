@@ -8,6 +8,7 @@ import zmq
 import subprocess
 import atexit
 import threading
+import yaml
 
 class MobileControllerUI(Measurement):
     
@@ -70,7 +71,13 @@ class MobileControllerUI(Measurement):
         self.next_movie_velocity = 0
         self.movie_velocity = 0     
 
-        self.triggable = True   
+        self.triggable = True
+
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+            self.mobile_sound_speed = config['music'].get('mobile_sound_speed', 0.5)
+            self.mobile_sound_volume = config['music'].get('mobile_sound_volume', 0.5)
+        
 
     def set_limb_mobile_connection(self, limb_connected_to_mobile):
 
@@ -164,9 +171,9 @@ class MobileControllerUI(Measurement):
             mapped_value_sound_speed = 1
             mapped_value_sound_volume = 0.1
         else:    
-            mapped_value_sound_speed = 2
-            mapped_value_sound_volume = 1.5
-        
+            mapped_value_sound_speed = self.mobile_sound_speed
+            mapped_value_sound_volume = self.mobile_sound_volume
+
         if self.mapped_value_sound_speed != mapped_value_sound_speed and self.mapped_value_sound_volume != mapped_value_sound_volume:
             message = f"{mapped_value_sound_speed},{mapped_value_sound_volume}"
             if hasattr(self, 'socket_sound'):
