@@ -268,6 +268,10 @@ class ExperimentControllerUI(Measurement):
         with open('config.yaml', 'r') as file:
             config = yaml.safe_load(file)
 
+        self.mobile_sound_speed = config['music'].get('mobile_sound_speed', 0.5)
+        self.mobile_sound_volume = config['music'].get('mobile_sound_volume', 0.5)
+        self.time_to_wait_in_baseline_before_mobile_music_starts = config['baseline'].get('time_to_start_mobile_sound_after_baseline_start_seconds', 5)
+
         # Extract the step structure data from the configuration
         self.step_structure_data = [
             [
@@ -449,6 +453,15 @@ class ExperimentControllerUI(Measurement):
     def step_timer(self):
         self.timer_expired = True
         
+    def mobile_start_music(self):
+        # Start the audio server from playing the mobile music
+        message = f"{self.mobile_sound_speed},{self.mobile_sound_volume}"
+        if hasattr(self.mobile_ui, 'socket_sound'):
+            try:
+                self.mobile_ui.socket_sound.send_string(message)
+            except zmq.error.ZMQError as e:
+                pass
+        self.scheduler.remove_job(job_id='mobile_music_timer')
 
     def run(self):
         """
@@ -633,28 +646,17 @@ class ExperimentControllerUI(Measurement):
                         # Play the the relevant fixation sound
                         # Initialize pygame mixer
                         if background_music:
-                            # Load the WAV file for the background music
-                            # read file path and name from config.yaml
-                            with open('config.yaml', 'r') as file:
-                                config = yaml.safe_load(file)
-                            background_music_file = config['music']['background_music_file']
-                            volume = config['music'].get('background_music_volume', 0.5)
-                            pygame.mixer.music.set_volume(volume)
-                            pygame.mixer.music.load(background_music_file)
-                            # Play the WAV file
-                            pygame.mixer.music.play()
+                            # start a timer to start mobile music after number of seconds
+                            self.scheduler.add_job(func=self.mobile_start_music, trigger='interval', 
+                                                   seconds=self.time_to_wait_in_baseline_before_mobile_music_starts, id='mobile_music_timer')
                         
                         # start a timer for the duration of the fixation step
                         
                         self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
                         self.job_start_time = datetime.now(timezone.utc)
                         self.total_pause_time = 0
-
-
                     
                     self.previous_step = self.current_step
-
-                    
 
                 # I want to know how much time has passed since the start of the task how to query the aps scheduler
                 job = self.scheduler.get_job(job_id='step_timer')

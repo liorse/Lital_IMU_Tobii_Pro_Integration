@@ -44,3 +44,6 @@ music:
   fixation_sound_volume: 1
   mobile_sound_speed: 2
   mobile_sound_volume: 1.5
+
+baseline:
+  time_to_start_mobile_sound_after_baseline_start_seconds: 10
