@@ -6,26 +6,26 @@ tasks:
     background_music: false
   - step_number: 2
     step_description: "Base Line"
-    step_duration_sec: 45
+    step_duration_sec: 60
     limb_connected_to_mobile: "None"
     background_music: true
   - step_number: 3
     step_description: "Connect"
-    step_duration_sec: 180
-    limb_connected_to_mobile: "Right Hand"
+    step_duration_sec: 210
+    limb_connected_to_mobile: "Left Hand"
     background_music: false
   - step_number: 4
     step_description: "Disconnect"
-    step_duration_sec: 45
+    step_duration_sec: 60
     limb_connected_to_mobile: "None"
     background_music: false
   - step_number: 5
     step_description: "Reconnect"
-    step_duration_sec: 45
-    limb_connected_to_mobile: "Left Leg"
+    step_duration_sec: 120
+    limb_connected_to_mobile: "Right Leg"
     background_music: false
 
-hardware_shiba:
+hardware:
   - name: "LeftHandMeta"
     MAC: "D5:17:53:77:EA:24"
   - name: "RightHandMeta"
@@ -34,17 +34,7 @@ hardware_shiba:
     MAC: "E2:98:72:8E:20:2A"
   - name: "RightLegMeta"
     MAC: "ED:A6:6D:CD:49:69"
-
-hardware_hebrew:
-  - name: "LeftHandMeta"
-    MAC: "C2:26:C4:65:45:54"
-  - name: "RightHandMeta"
-    MAC: "F3:F1:E2:D3:6E:A7"
-  - name: "LeftLegMeta"
-    MAC: "E1:39:04:67:C2:9B"
-  - name: "RightLegMeta"
-    MAC: "CA:DB:84:17:1A:6E"
-
+    
 music:
   background_music_file: "./media/background-piano-music.mp3"
   background_music_volume: 1
@@ -52,8 +42,3 @@ music:
   step_end_sound_volume: 1
   fixation_sound_file: "./media/Fixation_resized_standard.wav"
   fixation_sound_volume: 1
-  mobile_sound_speed: 2
-  mobile_sound_volume: 1.5
-
-baseline:
-  time_to_start_mobile_sound_after_baseline_start_seconds: 5

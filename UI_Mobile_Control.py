@@ -42,9 +42,9 @@ class MobileControllerUI(Measurement):
         self.settings.New('max_movie_speed', dtype=float, unit='fps', initial=120, vmin=0, vmax=151)
 
         # Zaadnoordijk Model
-        self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.60, vmin=0.00, vmax=16.00)
+        self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.15, vmin=0.00, vmax=16.00)
         self.settings.New('movie_play_time_when_acceleration_above_threshold', dtype=float, unit='ms', initial=650, vmin=0.00, vmax=10000.00)
-        self.settings.New('sensor_unresponsive_time', dtype=float, unit='ms', initial=650, vmin=0.00, vmax=10000.00)
+        self.settings.New('sensor_unresponsive_time', dtype=float, unit='ms', initial=0, vmin=0.00, vmax=10000.00)
 
         # physical Model (Lior)
         self.settings.New('friction_coef', dtype=float, initial=300, vmin=0.0, vmax=20000)

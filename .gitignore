@@ -1,10 +1,7 @@
-
-*.txt
 *.json
-*.pyc
 *.h5
-*.avi
-*.mov
-*.ini
-!requirements.txt
+*.txt
+*.log
+__pycache__/
 *.csv
+*.avi
