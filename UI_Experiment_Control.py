@@ -631,6 +631,7 @@ class ExperimentControllerUI(Measurement):
                         # Send to mobile the start of fixation step
                         if hasattr(self.mobile_ui, 'socket'):
                             try:
+                                self.mobile_ui.socket.send_multipart([b"dark_screen", str(int(0)).encode('utf-8')])
                                 self.mobile_ui.socket.send_multipart([b"mobile_movie", str(int(0)).encode('utf-8')])
                             except zmq.error.ZMQError as e:
                                 pass

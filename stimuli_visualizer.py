@@ -129,4 +129,4 @@ def main(fixation_movie_path, movie_path, zmq_port):
     pygame.quit()
 
 if __name__ == "__main__":
-    main(r".\media\Fixation_resized.avi", r".\media\Mobile_movie_trim2.avi", 5555)
+    main(r".\media\Fixation_resized.avi", r".\media\toys_video_for_mobile_task.avi", 5555)
