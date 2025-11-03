@@ -3,6 +3,7 @@ import ffmpeg
 import zmq
 import numpy as np
 import cv2
+import sys
 
 def extract_frames(movie_path):
     probe = ffmpeg.probe(movie_path)
@@ -129,4 +130,21 @@ def main(fixation_movie_path, movie_path, zmq_port):
     pygame.quit()
 
 if __name__ == "__main__":
-    main(r".\media\Fixation_resized.avi", r".\media\toys_video_for_mobile_task.avi", 5555)
+
+    # in UI_Mobile_Control.py I am spawning this script as a subprocess like this:
+    # self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py", selected_movie])
+    # how do I read the selected_movie argument here?
+    selected_movie = sys.argv[1] if len(sys.argv) > 1 else None
+    print(f"Selected movie: {selected_movie}")
+
+    # add the selected movie name to the media path and add appropriate suffix
+    if selected_movie:
+        movie_path = fr".\media\movies\{selected_movie}.avi"
+    else:
+        # No movie selected: use a safe default so movie_path is always defined.
+        # We reuse the fixation video as a default 'mobile' movie so the visualizer
+        # can still load and run without command-line args.
+        movie_path = r".\media\Fixation_resized.avi"
+        print("No movie selected; using default fixation movie as the mobile movie.")
+
+    main(r".\media\Fixation_resized.avi", movie_path, 5555)

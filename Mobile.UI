@@ -34,100 +34,10 @@
       <string>Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
-       <widget class="QPushButton" name="stop_stimuli_pushButton">
-        <property name="text">
-         <string>Stop Stimuli</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="2">
        <widget class="QLabel" name="framerate_label_label_11">
         <property name="text">
          <string>Limb Connected to Mobile</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QDoubleSpinBox" name="fps_spinBox">
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>400.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QDoubleSpinBox" name="sound_speed_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="framerate_label_label_2">
-        <property name="text">
-         <string>sound speed</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="save_h5_checkBox">
-        <property name="text">
-         <string>Save H5</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="3">
-       <widget class="QComboBox" name="Limb_connected_to_mobile_ComboBox"/>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="start_stimuli_pushButton">
-        <property name="text">
-         <string>Start Stimuli</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="1">
-       <widget class="QDoubleSpinBox" name="sound_volume_spinBox">
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="minimum">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>2.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="framerate_label_label">
-        <property name="text">
-         <string>FrameRate [fps]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="framerate_label_label_3">
-        <property name="text">
-         <string>sound volume</string>
         </property>
        </widget>
       </item>
@@ -153,13 +63,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="4">
-       <widget class="QLabel" name="framerate_label_label_14">
-        <property name="text">
-         <string>Friction coef</string>
-        </property>
-       </widget>
-      </item>
       <item row="4" column="5">
        <widget class="QDoubleSpinBox" name="mass_coef_spin_box">
         <property name="decimals">
@@ -182,32 +85,52 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="4">
-       <widget class="QLabel" name="framerate_label_label_15">
+      <item row="5" column="0">
+       <widget class="QLabel" name="framerate_label_label_2">
         <property name="text">
-         <string>Mass coef</string>
+         <string>sound speed</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="QDoubleSpinBox" name="acceleration_threshold_spinBox">
+      <item row="7" column="5">
+       <widget class="QComboBox" name="Model_ComboBox"/>
+      </item>
+      <item row="6" column="1">
+       <widget class="QDoubleSpinBox" name="sound_volume_spinBox">
         <property name="decimals">
-         <number>2</number>
+         <number>1</number>
         </property>
         <property name="minimum">
-         <double>0.010000000000000</double>
+         <double>0.100000000000000</double>
         </property>
         <property name="maximum">
-         <double>16.000000000000000</double>
+         <double>2.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.010000000000000</double>
+         <double>0.100000000000000</double>
         </property>
-        <property name="stepType">
-         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+       </widget>
+      </item>
+      <item row="7" column="4">
+       <widget class="QLabel" name="framerate_label_label_12">
+        <property name="text">
+         <string>Model</string>
         </property>
-        <property name="value">
-         <double>0.600000000000000</double>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="framerate_label_label_3">
+        <property name="text">
+         <string>sound volume</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2" rowspan="2">
+       <widget class="QLabel" name="framerate_label_label_8">
+        <property name="text">
+         <string>Sensor will be unresponsive 
+after movie finish playing
+for this time [ms]</string>
         </property>
        </widget>
       </item>
@@ -218,35 +141,22 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="3">
-       <widget class="QDoubleSpinBox" name="Movie_Playtime_spinBox">
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="minimum">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>5000.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="stepType">
-         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
-        </property>
-        <property name="value">
-         <double>650.000000000000000</double>
+      <item row="2" column="4">
+       <widget class="QLabel" name="framerate_label_label_14">
+        <property name="text">
+         <string>Friction coef</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
-       <widget class="QLabel" name="framerate_label_label_7">
+      <item row="1" column="0">
+       <widget class="QPushButton" name="start_stimuli_pushButton">
         <property name="text">
-         <string>Movie play time [ms] 
-when triggered</string>
+         <string>Start Stimuli</string>
         </property>
        </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QComboBox" name="Limb_connected_to_mobile_ComboBox"/>
       </item>
       <item row="5" column="3">
        <widget class="QDoubleSpinBox" name="Deadtime_spinBox">
@@ -270,26 +180,40 @@ when triggered</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="2" rowspan="2">
-       <widget class="QLabel" name="framerate_label_label_8">
+      <item row="4" column="4">
+       <widget class="QLabel" name="framerate_label_label_15">
         <property name="text">
-         <string>Sensor will be unresponsive 
-after movie finish playing
-for this time [ms]</string>
+         <string>Mass coef</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="4">
-       <widget class="QLabel" name="framerate_label_label_16">
-        <property name="font">
-         <font>
-          <pointsize>9</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="stop_stimuli_pushButton">
         <property name="text">
-         <string>Physical Model</string>
+         <string>Stop Stimuli</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDoubleSpinBox" name="sound_speed_spinBox">
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="framerate_label_label">
+        <property name="text">
+         <string>FrameRate [fps]</string>
         </property>
        </widget>
       </item>
@@ -326,6 +250,85 @@ for this time [ms]</string>
         </property>
        </widget>
       </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="fps_spinBox">
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>400.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="framerate_label_label_7">
+        <property name="text">
+         <string>Movie play time [ms] 
+when triggered</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QDoubleSpinBox" name="Movie_Playtime_spinBox">
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="minimum">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>5000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="stepType">
+         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+        </property>
+        <property name="value">
+         <double>650.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="acceleration_threshold_spinBox">
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="minimum">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>16.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="stepType">
+         <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+        </property>
+        <property name="value">
+         <double>0.600000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="framerate_label_label_16">
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Physical Model</string>
+        </property>
+       </widget>
+      </item>
       <item row="6" column="4">
        <widget class="QLabel" name="framerate_label_label_10">
         <property name="text">
@@ -333,15 +336,22 @@ for this time [ms]</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="4">
-       <widget class="QLabel" name="framerate_label_label_12">
+      <item row="9" column="0">
+       <widget class="QCheckBox" name="save_h5_checkBox">
         <property name="text">
-         <string>Model</string>
+         <string>Save H5</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="5">
-       <widget class="QComboBox" name="Model_ComboBox"/>
+      <item row="7" column="0">
+       <widget class="QLabel" name="Movie">
+        <property name="text">
+         <string>Movie</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QComboBox" name="Movie_name_ComboBox"/>
       </item>
      </layout>
     </widget>

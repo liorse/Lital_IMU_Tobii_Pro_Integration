@@ -9,6 +9,7 @@ import subprocess
 import atexit
 import threading
 import yaml
+import sys
 
 class MobileControllerUI(Measurement):
     
@@ -52,9 +53,24 @@ class MobileControllerUI(Measurement):
 
         self.settings.New(name='limb_connected_to_mobile', initial= ('Left Hand', "_left_hand"), dtype=str, ro=False, choices= [ ('Left Hand', "_left_hand"), ('Right Hand', "_right_hand"), ('Left Leg', "_left_leg"), ('Right Leg', "_right_leg"), ('None', "_none")])
         self.settings.New(name='model', initial= ('Zaadnoordijk', "_zaadnoordijk"), dtype=str, ro=False, choices= [ ('Zaadnoordijk', "_zaadnoordijk"), ('Physical', "_physical")])
-        
         self.settings.limb_connected_to_mobile.connect_to_hardware(write_func=self.set_limb_mobile_connection)
         
+        # read movies from media folder and form a list for the initial value for self.settings
+        # read all avi files in the media folder
+        media_folder = sibling_path(__file__, "media/movies")
+        import os
+        try:
+            movie_files = [f for f in os.listdir(media_folder) if f.endswith('.avi')]
+            movie_names = [os.path.splitext(f)[0] for f in movie_files]
+            # turn movie names into a list of tuples for the choices
+            movie_names = [(name, name) for name in movie_names]
+            self.settings.New(name='Movie_name_ComboBox', initial=movie_names[0] if movie_names else None, dtype=str, ro=False, choices=movie_names)
+        except FileNotFoundError:
+            # if you don't find any movies don't initialize the setting
+            self.settings.New(name='Movie_name_ComboBox', initial=(), dtype=str, ro=False)
+        
+        self.settings.Movie_name_ComboBox.connect_to_widget(self.ui.Movie_name_ComboBox)
+
         # Define how often to update display during a run
         self.display_update_period = 1/60
         
@@ -289,11 +305,17 @@ class MobileControllerUI(Measurement):
         self.socket_sound.bind("tcp://localhost:5556")  # Bind to the port to allow connections
 
         # run the stimuli visualizer in a seperate process using the shell
-        self.stimuli_process = subprocess.Popen(["python", "stimuli_visualizer.py"])
+        # get the selected movie name from the combobox
+        selected_movie = self.settings['Movie_name_ComboBox']
+        self.stimuli_process = subprocess.Popen([sys.executable, "stimuli_visualizer.py", selected_movie])
         atexit.register(self.terminate_stimuli_process)
 
         # run the stimuli sound in a seperate process using the shell
-        self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py"])
+        # can I add an argument to the subprocess to set the file name of the movie file based
+        # on the selected movie in the combobox?
+        selected_movie = self.settings['Movie_name_ComboBox']
+        self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py", selected_movie])
+        
         atexit.register(self.terminate_stimuli_sound_process)
 
         #self.LeftHandMeta.acc_data_updated.connect(self.update_mobile_with_acc)
