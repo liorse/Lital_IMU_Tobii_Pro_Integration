@@ -4,5 +4,6 @@
 *.log
 __pycache__/
 *.csv
-*.avi
-*.mov
+/media/*.avi
+/media/*.mov
+!/media/Fixation_resized.avi

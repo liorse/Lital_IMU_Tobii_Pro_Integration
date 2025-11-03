@@ -17,6 +17,10 @@ version 1.0.3
 
 2. changed to mobile music in baseline step which starts after a specific amount of time that is settable in the config.yaml file
 
+version 1.0.4
+1. added the feature of loading video files from the media folder. these video files can be used instead of live camera feed
+2. the video restarts from the beginning after a step is over
+
 
 To install run:
 install 
