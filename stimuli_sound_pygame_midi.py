@@ -4,11 +4,14 @@ import time
 import zmq
 import threading
 from datetime import datetime
+import sys
+import pygame
 
 # Global variables for current playback speed and volume
 old_current_speed = 0.1
 current_speed = 0.1
 current_volume = 0.1  # Full volume
+change_detected = False
 
 class CustomTimer(threading.Timer):
     def __init__(self, interval, function, args=None, kwargs=None):
@@ -25,7 +28,7 @@ class CustomTimer(threading.Timer):
         return None
     
 def zmq_listener():
-    global current_speed, current_volume
+    global current_speed, current_volume, change_detected
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     socket.connect("tcp://localhost:5556")  # Adjust as needed
@@ -38,6 +41,11 @@ def zmq_listener():
         #print(f"Received new speed: {speed}, new volume: {volume}")
 
         # Update speed and volume
+        if current_speed != speed or current_volume != volume:
+            change_detected = True
+        else:
+            change_detected = False
+            
         old_current_speed = current_speed
         current_speed = speed
         current_volume = volume
@@ -116,11 +124,56 @@ def play_midi_in_real_time(file_path):
         midi_out.close()
         pygame.midi.quit()
 
+def mp3_sound_reactive_Listener(sound1):
+    global current_speed, current_volume, change_detected
+
+    while True:
+        if change_detected:
+            change_detected = False
+            if current_speed <= 0.1:
+                
+                # turn down the volume to 0
+                # lower the volume over 100 ms
+                for i in range(100, -1, -1):
+                    sound1.set_volume(i / 100)
+                    pygame.time.wait(1)
+            else:
+                # turn up the volume
+                for i in range(1, 101):
+                    sound1.set_volume(i / 100)
+                    pygame.time.wait(1)
+            
+        time.sleep(0.1)  # Check for volume updates every 100 ms
+
+
 # Start the ZeroMQ listener in a separate thread
 threading.Thread(target=zmq_listener, daemon=True).start()
 
 if __name__ == "__main__":
-    # Start MIDI playback with real-time speed and volume control
-    # source for the file is here https://bitmidi.com/brahms-lullaby-wiegenlied-piano-mid
-    file_path = "./media/brahms-lullaby-wiegenlied-piano.mid"  # Replace with your MIDI file path
-    play_midi_in_real_time(file_path)
+
+    # in UI_Mobile_Control.py I am spawning this script as a subprocess like this:
+    #self.stimuli_sound_process = subprocess.Popen([sys.executable, "stimuli_sound_pygame_midi.py", selected_movie])
+    # how do I read the selected_movie argument here?
+    selected_movie = sys.argv[1] if len(sys.argv) > 1 else None
+    print(f"Selected movie in sound stimuli process: {selected_movie}")
+
+    # if selected_movie is not None and contains the string 4_months then run the current midi
+    if selected_movie is not None and "4_months" in selected_movie:
+    
+        # Start MIDI playback with real-time speed and volume control
+        # source for the file is here https://bitmidi.com/brahms-lullaby-wiegenlied-piano-mid
+        file_path = "./media/brahms-lullaby-wiegenlied-piano.mid"  # Replace with your MIDI file path
+        play_midi_in_real_time(file_path)
+    elif selected_movie is not None:
+        # the load the same filename but with mp3 suffix from media folder
+        file_path = f"./media/{selected_movie}.mp3"
+        print(f"Playing sound file: {file_path}")
+        # Initialize Pygame mixer
+        pygame.mixer.init()
+        sound1 = pygame.mixer.Sound(file_path)
+        sound1.set_volume(0.0)  # Set initial volume to max
+        sound1.play(loops=-1, fade_ms=500)
+
+        # get ready to receive zmq messages
+        mp3_sound_reactive_Listener(sound1)
+

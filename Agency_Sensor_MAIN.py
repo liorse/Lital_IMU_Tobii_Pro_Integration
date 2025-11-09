@@ -38,7 +38,7 @@ class AgencySensor(BaseMicroscopeApp):
     def setup(self):
         
         #Add App wide settings
-        self.settings.New('Version', dtype=str, initial='1.0.4')
+        self.settings.New('Version', dtype=str, initial='1.0.5')
 
         # the version number to App name
         self.name = 'Agency Sensor v{}'.format(self.settings['Version'])

@@ -314,7 +314,7 @@ class MobileControllerUI(Measurement):
         # can I add an argument to the subprocess to set the file name of the movie file based
         # on the selected movie in the combobox?
         selected_movie = self.settings['Movie_name_ComboBox']
-        self.stimuli_sound_process = subprocess.Popen(["python", "stimuli_sound_pygame_midi.py", selected_movie])
+        self.stimuli_sound_process = subprocess.Popen([sys.executable, "stimuli_sound_pygame_midi.py", selected_movie])
         
         atexit.register(self.terminate_stimuli_sound_process)
 
