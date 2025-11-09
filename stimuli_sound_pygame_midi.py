@@ -130,7 +130,7 @@ def mp3_sound_reactive_Listener(sound1):
     while True:
         if change_detected:
             change_detected = False
-            if current_speed <= 0.1:
+            if current_volume <= 0.1:
                 
                 # turn down the volume to 0
                 # lower the volume over 100 ms
