@@ -7,3 +7,4 @@ __pycache__/
 /media/*.avi
 /media/*.mov
 !/media/Fixation_resized.avi
+!launch.json
