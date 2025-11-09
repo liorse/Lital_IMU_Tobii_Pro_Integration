@@ -134,9 +134,10 @@ def mp3_sound_reactive_Listener(sound1):
                 
                 # turn down the volume to 0
                 # lower the volume over 100 ms
-                for i in range(100, -1, -1):
-                    sound1.set_volume(i / 100)
-                    pygame.time.wait(1)
+                if sound1.get_volume() != 0.0:
+                    for i in range(100, -1, -1):
+                        sound1.set_volume(i / 100)
+                        pygame.time.wait(1)
             else:
                 # turn up the volume
                 for i in range(1, 101):
