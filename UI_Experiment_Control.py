@@ -569,12 +569,17 @@ class ExperimentControllerUI(Measurement):
             self.previous_step = -1
             self.timer_expired = False
 
-            # Connect USB TTL if not connected
+            # Refresh USB TTL connection
             if self.usb_ttl:
-                # Use the 'connected' setting to ensure UI updates
-                if not self.usb_ttl.settings['connected']:
-                    print("USB TTL not connected. Attempting to connect...")
-                    self.usb_ttl.settings['connected'] = True
+                print("Refreshing USB TTL connection...")
+                # Force disconnect if connected
+                if self.usb_ttl.settings['connected']:
+                    self.usb_ttl.settings['connected'] = False
+                    time.sleep(0.2)
+                
+                # Connect
+                self.usb_ttl.settings['connected'] = True
+                time.sleep(0.5) # Wait for connection to establish
                 
                 # Update TTL status label after connection attempt
                 self.update_ttl_status_label()
