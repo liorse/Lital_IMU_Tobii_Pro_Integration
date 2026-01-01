@@ -4,6 +4,8 @@ import yaml
 import sys
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
+from HW_USB_TTL import USBTTLHardware
+from UI_USB_TTL import USBTTLMonitorUI
 from UI_MetaMotionRL import MetaWearUI
 from UI_Mobile_Control import MobileControllerUI
 from UI_Experiment_Control import ExperimentControllerUI
@@ -19,6 +21,12 @@ class AgencySensor(BaseMicroscopeApp):
         # Load MAC addresses from config.yaml file
         with open('config.yaml', 'r') as file:
             config = yaml.safe_load(file)
+        
+        # Load TTL configuration
+        if 'hardware' in config and 'usb_ttl_module' in config['hardware']:
+            self.ttl_port = config['hardware']['usb_ttl_module'].get('port', 'COM3')
+        else:
+            self.ttl_port = 'COM3'
         
         if len(argv) > 1:
             if argv[1] == 'shiba':
@@ -51,11 +59,15 @@ class AgencySensor(BaseMicroscopeApp):
         self.add_hardware(MetaMotionRLHW(self, name='LeftLegMeta', MAC=self.left_leg_mac))
         self.add_hardware(MetaMotionRLHW(self, name='RightLegMeta', MAC=self.right_leg_mac))
         
+        # Add USB TTL Module
+        self.add_hardware(USBTTLHardware(self, port=self.ttl_port))
+        
         #Add measurement components
         print("Create Measurement objects")
         self.add_measurement(MetaWearUI(self))
         self.add_measurement(MobileControllerUI(self))
         self.add_measurement(ExperimentControllerUI(self))
+        self.add_measurement(USBTTLMonitorUI(self))
         
         # Connect to custom gui
         

@@ -8,3 +8,15 @@ __pycache__/
 /media/*.mov
 !/media/Fixation_resized.avi
 !launch.json
+
+# Python testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python bytecode
+*.pyc
+
+# Editor directories
+.idea/
+.vscode/

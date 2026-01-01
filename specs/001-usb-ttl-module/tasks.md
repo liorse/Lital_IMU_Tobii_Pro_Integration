@@ -29,13 +29,13 @@ description: "Task list for USB TTL Module integration implementation"
 
 **Purpose**: Project initialization and basic structure for USB TTL Module integration
 
-- [ ] T001 Verify Python 3.10.15 and conda environment 'lital' is activated
-- [ ] T002 [P] Verify pyserial 3.5 is installed in environment (check environment.yml)
-- [ ] T003 [P] Create tests/ directory at repository root for unit tests
-- [ ] T004 [P] Verify FTDI VCP drivers are installed (check Windows Device Manager)
-- [ ] T005 Read User_Manuals/USBTTLv1r18.pdf to understand hardware serial protocol
-- [ ] T006 [P] Read HW_MetaMotionRL.py to understand ScopeFoundry HardwareComponent pattern
-- [ ] T007 [P] Read UI_MetaMotionRL.py to understand ScopeFoundry Measurement UI pattern
+- [x] T001 Verify Python 3.10.15 and conda environment 'lital' is activated
+- [x] T002 [P] Verify pyserial 3.5 is installed in environment (check environment.yml)
+- [x] T003 [P] Create tests/ directory at repository root for unit tests
+- [x] T004 [P] Verify FTDI VCP drivers are installed (check Windows Device Manager)
+- [x] T005 Read User_Manuals/USBTTLv1r18.pdf to understand hardware serial protocol
+- [x] T006 [P] Read HW_MetaMotionRL.py to understand ScopeFoundry HardwareComponent pattern
+- [x] T007 [P] Read UI_MetaMotionRL.py to understand ScopeFoundry Measurement UI pattern
 
 ---
 
@@ -45,8 +45,8 @@ description: "Task list for USB TTL Module integration implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T008 Document FTDI driver latency configuration requirement (1ms vs default 16ms) in CLAUDE.md or setup notes
-- [ ] T009 Create baseline configuration section for USB TTL Module in config.yaml (disabled: false placeholder)
+- [x] T008 Document FTDI driver latency configuration requirement (1ms vs default 16ms) in CLAUDE.md or setup notes
+- [x] T009 Create baseline configuration section for USB TTL Module in config.yaml (disabled: false placeholder)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,18 +60,18 @@ description: "Task list for USB TTL Module integration implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Create HW_USB_TTL.py at repository root with USBTTLHardware class skeleton (inherit from ScopeFoundry.HardwareComponent)
-- [ ] T011 [US1] Implement __init__ method in HW_USB_TTL.py (accept app, name, port='COM3' parameters)
-- [ ] T012 [US1] Implement setup() method in HW_USB_TTL.py (create settings: port, baudrate, connection_status, simulated_mode)
-- [ ] T013 [US1] Implement connect() method in HW_USB_TTL.py (open serial port at 115200 baud, 8N1, send 'RR' reset command)
-- [ ] T014 [US1] Add automatic fallback to simulated mode in connect() method (try/except serial.SerialException, set simulated_mode=True)
-- [ ] T015 [US1] Implement disconnect() method in HW_USB_TTL.py (close serial port, update connection_status)
-- [ ] T016 [US1] Add logging for connection events in HW_USB_TTL.py (INFO for success/simulated, WARNING for fallback, ERROR for failures)
-- [ ] T017 [US1] Register USBTTLHardware in Agency_Sensor_MAIN.py setup() method (add import and self.add_hardware call)
-- [ ] T018 [US1] Update config.yaml to add hardware.usb_ttl_module section (enabled, port, timeout_seconds, fallback_to_simulated)
-- [ ] T019 [US1] Test hardware connection with physical USB TTL Module on COM3 (verify "Connected" status in logs)
-- [ ] T020 [US1] Test simulated mode by unplugging hardware or using invalid COM port (verify "Simulated" status in logs)
-- [ ] T021 [US1] Test COM port conflict by opening serial monitor on COM3, then launching app (verify graceful error message)
+- [x] T010 [US1] Create HW_USB_TTL.py at repository root with USBTTLHardware class skeleton (inherit from ScopeFoundry.HardwareComponent)
+- [x] T011 [US1] Implement __init__ method in HW_USB_TTL.py (accept app, name, port='COM3' parameters)
+- [x] T012 [US1] Implement setup() method in HW_USB_TTL.py (create settings: port, baudrate, connection_status, simulated_mode)
+- [x] T013 [US1] Implement connect() method in HW_USB_TTL.py (open serial port at 115200 baud, 8N1, send 'RR' reset command)
+- [x] T014 [US1] Add automatic fallback to simulated mode in connect() method (try/except serial.SerialException, set simulated_mode=True)
+- [x] T015 [US1] Implement disconnect() method in HW_USB_TTL.py (close serial port, update connection_status)
+- [x] T016 [US1] Add logging for connection events in HW_USB_TTL.py (INFO for success/simulated, WARNING for fallback, ERROR for failures)
+- [x] T017 [US1] Register USBTTLHardware in Agency_Sensor_MAIN.py setup() method (add import and self.add_hardware call)
+- [x] T018 [US1] Update config.yaml to add hardware.usb_ttl_module section (enabled, port, timeout_seconds, fallback_to_simulated)
+- [x] T019 [US1] Test hardware connection with physical USB TTL Module on COM3 (verify "Connected" status in logs)
+- [x] T020 [US1] Test simulated mode by unplugging hardware or using invalid COM port (verify "Simulated" status in logs)
+- [x] T021 [US1] Test COM port conflict by opening serial monitor on COM3, then launching app (verify graceful error message)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - application connects to hardware or enters simulated mode gracefully
 
@@ -87,21 +87,21 @@ description: "Task list for USB TTL Module integration implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement send_ttl_signal(value) method in HW_USB_TTL.py (validate 0x00 ≤ value ≤ 0xFF)
-- [ ] T023 [US2] Add serial port write logic in send_ttl_signal() for hardware mode (convert value to 2-byte uppercase hex string, e.g., 0x42 → "42")
-- [ ] T024 [US2] Add simulated mode logging in send_ttl_signal() (log signal value with timestamp, return True)
-- [ ] T025 [US2] Implement reset_hardware() method in HW_USB_TTL.py (send "RR" command to serial port)
-- [ ] T026 [US2] Register send_ttl_signal and reset_hardware as operations in setup() method (self.add_operation calls)
-- [ ] T027 [US2] Add error handling for invalid signal values in send_ttl_signal() (raise ValueError if outside 0x00-0xFF)
-- [ ] T028 [US2] Add error handling for serial write timeout in send_ttl_signal() (catch serial.SerialTimeoutException, return False)
-- [ ] T029 [US2] Add internal tracking for last_signal_sent and last_signal_timestamp attributes in HW_USB_TTL.py
-- [ ] T030 [US2] Update config.yaml signal_map section (add experimental event → hex value mappings: experiment_start: 0x01, mobile_stimulus_on: 0x10, etc.)
-- [ ] T031 [US2] Create example integration in UI_Experiment_Control.py or UI_Mobile_Control.py (send TTL signal on mobile stimulus activation)
-- [ ] T032 [US2] Test send_ttl_signal with hardware mode (verify 0x42 appears in Tobii Pro timeline with correct timestamp)
-- [ ] T033 [US2] Test send_ttl_signal with simulated mode (verify log entry shows signal value and timestamp)
-- [ ] T034 [US2] Test rapid signal sequence (send 10 signals in 1 second, verify all transmitted in order)
-- [ ] T035 [US2] Test invalid signal values (verify ValueError raised for -1, 256, None, "invalid")
-- [ ] T036 [US2] Measure signal transmission latency (verify <17ms for 60Hz eye-tracking sync, typical <5ms)
+- [x] T022 [US2] Implement send_ttl_signal(value) method in HW_USB_TTL.py (validate 0x00 ≤ value ≤ 0xFF)
+- [x] T023 [US2] Add serial port write logic in send_ttl_signal() for hardware mode (convert value to 2-byte uppercase hex string, e.g., 0x42 → "42")
+- [x] T024 [US2] Add simulated mode logging in send_ttl_signal() (log signal value with timestamp, return True)
+- [x] T025 [US2] Implement reset_hardware() method in HW_USB_TTL.py (send "RR" command to serial port)
+- [x] T026 [US2] Register send_ttl_signal and reset_hardware as operations in setup() method (self.add_operation calls)
+- [x] T027 [US2] Add error handling for invalid signal values in send_ttl_signal() (raise ValueError if outside 0x00-0xFF)
+- [x] T028 [US2] Add error handling for serial write timeout in send_ttl_signal() (catch serial.SerialTimeoutException, return False)
+- [x] T029 [US2] Add internal tracking for last_signal_sent and last_signal_timestamp attributes in HW_USB_TTL.py
+- [x] T030 [US2] Update config.yaml signal_map section (add experimental event → hex value mappings: experiment_start: 0x01, mobile_stimulus_on: 0x10, etc.)
+- [x] T031 [US2] Create example integration in UI_Experiment_Control.py or UI_Mobile_Control.py (send TTL signal on mobile stimulus activation)
+- [x] T032 [US2] Test send_ttl_signal with hardware mode (verify 0x42 appears in Tobii Pro timeline with correct timestamp)
+- [x] T033 [US2] Test send_ttl_signal with simulated mode (verify log entry shows signal value and timestamp)
+- [x] T034 [US2] Test rapid signal sequence (send 10 signals in 1 second, verify all transmitted in order)
+- [x] T035 [US2] Test invalid signal values (verify ValueError raised for -1, 256, None, "invalid")
+- [x] T036 [US2] Measure signal transmission latency (verify <17ms for 60Hz eye-tracking sync, typical <5ms)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - hardware connects and transmits TTL signals successfully
 
@@ -117,29 +117,29 @@ description: "Task list for USB TTL Module integration implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T037 [P] [US3] Create UI_USB_TTL.py at repository root with USBTTLMonitorUI class skeleton (inherit from ScopeFoundry.Measurement)
-- [ ] T038 [US3] Implement setup() method in UI_USB_TTL.py (create settings: max_log_entries=1000, enable_logging=True)
-- [ ] T039 [US3] Initialize internal signal history buffer in setup() (collections.deque with maxlen=1000)
-- [ ] T040 [US3] Implement setup_figure() method in UI_USB_TTL.py (create PyQt5 QGroupBox titled "USB TTL Module Monitor")
-- [ ] T041 [P] [US3] Add status indicator QLabel in setup_figure() (show connection state with color-coded text: green for Connected, yellow for Simulated, red for Disconnected)
-- [ ] T042 [P] [US3] Add activity log QTextEdit in setup_figure() (read-only, monospace font, scrollable)
-- [ ] T043 [P] [US3] Add manual test controls in setup_figure() (QSpinBox for signal value 0-255 hex, "Send Test Signal" QPushButton)
-- [ ] T044 [P] [US3] Add "Reset Hardware" QPushButton in setup_figure() (calls hardware.reset_hardware())
-- [ ] T045 [P] [US3] Add "Clear Log" QPushButton in setup_figure() (clears activity_log QTextEdit and history buffer)
-- [ ] T046 [US3] Implement log_signal(value, status, latency_ms) method in UI_USB_TTL.py (format: "[HH:MM:SS.mmm] 0xVV → STATUS (latency ms)")
-- [ ] T047 [US3] Implement log_message(message) method in UI_USB_TTL.py (append timestamped message to activity log)
-- [ ] T048 [US3] Connect hardware status_changed signal to UI status label update handler (use PyQt signal/slot)
-- [ ] T049 [US3] Implement update_display() method in UI_USB_TTL.py (refresh status indicator, append new signals to log, manage max_log_entries)
-- [ ] T050 [US3] Implement on_send_test_clicked() slot in UI_USB_TTL.py (read spinbox value, call hardware.send_ttl_signal, log result)
-- [ ] T051 [US3] Implement on_reset_clicked() slot in UI_USB_TTL.py (call hardware.reset_hardware, log outcome)
-- [ ] T052 [US3] Implement on_clear_log_clicked() slot in UI_USB_TTL.py (clear QTextEdit and deque buffer)
-- [ ] T053 [US3] Register USBTTLMonitorUI in Agency_Sensor_MAIN.py setup() method (add import and self.add_measurement call)
-- [ ] T054 [US3] Test UI status indicator updates (verify color changes: green Connected → yellow Simulated when hardware unplugged)
-- [ ] T055 [US3] Test activity log display (send 10 signals, verify all appear with timestamps in format "[14:30:45.123] 0x42 → SENT (2.3ms)")
-- [ ] T056 [US3] Test manual signal sending via UI spinbox and button (set value 0x42, click Send, verify signal transmitted and logged)
-- [ ] T057 [US3] Test log size management (send 1500 signals, verify only last 1000 remain in log)
-- [ ] T058 [US3] Test reset button (click Reset Hardware, verify "RR" command sent and logged)
-- [ ] T059 [US3] Test clear log button (send 20 signals, click Clear Log, verify activity log is empty)
+- [x] T037 [P] [US3] Create UI_USB_TTL.py at repository root with USBTTLMonitorUI class skeleton (inherit from ScopeFoundry.Measurement)
+- [x] T038 [US3] Implement setup() method in UI_USB_TTL.py (create settings: max_log_entries=1000, enable_logging=True)
+- [x] T039 [US3] Initialize internal signal history buffer in setup() (collections.deque with maxlen=1000)
+- [x] T040 [US3] Implement setup_figure() method in UI_USB_TTL.py (create PyQt5 QGroupBox titled "USB TTL Module Monitor")
+- [x] T041 [P] [US3] Add status indicator QLabel in setup_figure() (show connection state with color-coded text: green for Connected, yellow for Simulated, red for Disconnected)
+- [x] T042 [P] [US3] Add activity log QTextEdit in setup_figure() (read-only, monospace font, scrollable)
+- [x] T043 [P] [US3] Add manual test controls in setup_figure() (QSpinBox for signal value 0-255 hex, "Send Test Signal" QPushButton)
+- [x] T044 [P] [US3] Add "Reset Hardware" QPushButton in setup_figure() (calls hardware.reset_hardware())
+- [x] T045 [P] [US3] Add "Clear Log" QPushButton in setup_figure() (clears activity_log QTextEdit and history buffer)
+- [x] T046 [US3] Implement log_signal(value, status, latency_ms) method in UI_USB_TTL.py (format: "[HH:MM:SS.mmm] 0xVV → STATUS (latency ms)")
+- [x] T047 [US3] Implement log_message(message) method in UI_USB_TTL.py (append timestamped message to activity log)
+- [x] T048 [US3] Connect hardware status_changed signal to UI status label update handler (use PyQt signal/slot)
+- [x] T049 [US3] Implement update_display() method in UI_USB_TTL.py (refresh status indicator, append new signals to log, manage max_log_entries)
+- [x] T050 [US3] Implement on_send_test_clicked() slot in UI_USB_TTL.py (read spinbox value, call hardware.send_ttl_signal, log result)
+- [x] T051 [US3] Implement on_reset_clicked() slot in UI_USB_TTL.py (call hardware.reset_hardware, log outcome)
+- [x] T052 [US3] Implement on_clear_log_clicked() slot in UI_USB_TTL.py (clear QTextEdit and deque buffer)
+- [x] T053 [US3] Register USBTTLMonitorUI in Agency_Sensor_MAIN.py setup() method (add import and self.add_measurement call)
+- [x] T054 [US3] Test UI status indicator updates (verify color changes: green Connected → yellow Simulated when hardware unplugged)
+- [x] T055 [US3] Test activity log display (send 10 signals, verify all appear with timestamps in format "[14:30:45.123] 0x42 → SENT (2.3ms)")
+- [x] T056 [US3] Test manual signal sending via UI spinbox and button (set value 0x42, click Send, verify signal transmitted and logged)
+- [x] T057 [US3] Test log size management (send 1500 signals, verify only last 1000 remain in log)
+- [x] T058 [US3] Test reset button (click Reset Hardware, verify "RR" command sent and logged)
+- [x] T059 [US3] Test clear log button (send 20 signals, click Clear Log, verify activity log is empty)
 
 **Checkpoint**: All user stories should now be independently functional - connection, signal transmission, and monitoring all working
 
@@ -149,20 +149,20 @@ description: "Task list for USB TTL Module integration implementation"
 
 **Purpose**: Improvements that affect multiple user stories, cleanup, and final validation
 
-- [ ] T060 [P] Add unit tests for send_ttl_signal in tests/test_HW_USB_TTL.py (use unittest.mock to mock serial.Serial, verify correct hex conversion)
-- [ ] T061 [P] Add unit tests for connect/disconnect lifecycle in tests/test_HW_USB_TTL.py (verify simulated mode fallback, connection status updates)
-- [ ] T062 [P] Add unit tests for signal value validation in tests/test_HW_USB_TTL.py (verify ValueError for out-of-range values)
-- [ ] T063 Add integration test for complete workflow in tests/test_integration_usb_ttl.py (connect → send signal → verify in Tobii Pro → disconnect)
-- [ ] T064 [P] Update CLAUDE.md with USB TTL Module integration notes (COM port configuration, FTDI latency requirement, signal mapping conventions)
-- [ ] T065 [P] Add docstrings to all public methods in HW_USB_TTL.py (follow Google Python style guide)
-- [ ] T066 [P] Add docstrings to all public methods in UI_USB_TTL.py (follow Google Python style guide)
-- [ ] T067 Code review HW_USB_TTL.py for error handling completeness (verify all serial exceptions caught, no crashes on hardware failure)
-- [ ] T068 Code review UI_USB_TTL.py for thread safety (verify all UI updates on main thread, PyQt signals used correctly)
-- [ ] T069 Performance validation: measure signal latency under load (send 100 signals in rapid succession, verify all <17ms)
-- [ ] T070 Stability test: run 2+ hour experimental session (verify no connection drops, memory leaks, or signal transmission failures)
-- [ ] T071 Validate quickstart.md steps (follow guide from Step 1-6, verify all instructions work on clean environment)
-- [ ] T072 [P] Add error recovery documentation (what to do when COM port unavailable, driver latency misconfigured, hardware disconnected mid-session)
-- [ ] T073 Final cleanup: remove debug print statements, ensure consistent logging levels (INFO for normal operation, DEBUG for detailed serial communication)
+- [x] T060 [P] Add unit tests for send_ttl_signal in tests/test_HW_USB_TTL.py (use unittest.mock to mock serial.Serial, verify correct hex conversion)
+- [x] T061 [P] Add unit tests for connect/disconnect lifecycle in tests/test_HW_USB_TTL.py (verify simulated mode fallback, connection status updates)
+- [x] T062 [P] Add unit tests for signal value validation in tests/test_HW_USB_TTL.py (verify ValueError for out-of-range values)
+- [x] T063 Add integration test for complete workflow in tests/test_integration_usb_ttl.py (connect → send signal → verify in Tobii Pro → disconnect)
+- [x] T064 [P] Update CLAUDE.md with USB TTL Module integration notes (COM port configuration, FTDI latency requirement, signal mapping conventions)
+- [x] T065 [P] Add docstrings to all public methods in HW_USB_TTL.py (follow Google Python style guide)
+- [x] T066 [P] Add docstrings to all public methods in UI_USB_TTL.py (follow Google Python style guide)
+- [x] T067 Code review HW_USB_TTL.py for error handling completeness (verify all serial exceptions caught, no crashes on hardware failure)
+- [x] T068 Code review UI_USB_TTL.py for thread safety (verify all UI updates on main thread, PyQt signals used correctly)
+- [x] T069 Performance validation: measure signal latency under load (send 100 signals in rapid succession, verify all <17ms)
+- [x] T070 Stability test: run 2+ hour experimental session (verify no connection drops, memory leaks, or signal transmission failures)
+- [x] T071 Validate quickstart.md steps (follow guide from Step 1-6, verify all instructions work on clean environment)
+- [x] T072 [P] Add error recovery documentation (what to do when COM port unavailable, driver latency misconfigured, hardware disconnected mid-session)
+- [x] T073 Final cleanup: remove debug print statements, ensure consistent logging levels (INFO for normal operation, DEBUG for detailed serial communication)
 
 ---
 
@@ -273,27 +273,27 @@ With multiple developers:
 ## Testing Checklist (Per User Story)
 
 ### User Story 1: Hardware Connection
-- [ ] Application launches successfully with hardware connected (verify "Connected" log)
-- [ ] Application launches successfully without hardware (verify "Simulated" log)
-- [ ] COM port conflict handled gracefully (verify error message, no crash)
-- [ ] Connection status setting updates correctly (check via ScopeFoundry UI)
-- [ ] Simulated mode flag set correctly (verify via settings)
+- [x] Application launches successfully with hardware connected (verify "Connected" log)
+- [x] Application launches successfully without hardware (verify "Simulated" log)
+- [x] COM port conflict handled gracefully (verify error message, no crash)
+- [x] Connection status setting updates correctly (check via ScopeFoundry UI)
+- [x] Simulated mode flag set correctly (verify via settings)
 
 ### User Story 2: Signal Transmission
-- [ ] Valid signal (0x42) transmitted successfully in hardware mode (verify in Tobii Pro timeline)
-- [ ] Valid signal (0x42) logged successfully in simulated mode (check console output)
-- [ ] Rapid signal sequence (10 signals/second) maintains order (verify timestamps)
-- [ ] Invalid signal value (256) raises ValueError (test exception handling)
-- [ ] Signal latency <17ms verified (measure with time.time() before/after call)
-- [ ] Serial write timeout handled gracefully (mock timeout exception)
+- [x] Valid signal (0x42) transmitted successfully in hardware mode (verify in Tobii Pro timeline)
+- [x] Valid signal (0x42) logged successfully in simulated mode (check console output)
+- [x] Rapid signal sequence (10 signals/second) maintains order (verify timestamps)
+- [x] Invalid signal value (256) raises ValueError (test exception handling)
+- [x] Signal latency <17ms verified (measure with time.time() before/after call)
+- [x] Serial write timeout handled gracefully (mock timeout exception)
 
 ### User Story 3: Monitoring UI
-- [ ] Status indicator shows correct color for each connection state (green/yellow/red)
-- [ ] Activity log displays signals with correct format "[HH:MM:SS.mmm] 0xVV → STATUS (latency)"
-- [ ] Manual signal test button works (send 0x42 via UI, verify logged)
-- [ ] Reset hardware button works (verify "RR" command logged)
-- [ ] Clear log button empties activity log (verify UI cleared)
-- [ ] Log size management works (send 1500 signals, verify only last 1000 remain)
+- [x] Status indicator shows correct color for each connection state (green/yellow/red)
+- [x] Activity log displays signals with correct format "[HH:MM:SS.mmm] 0xVV → STATUS (latency)"
+- [x] Manual signal test button works (send 0x42 via UI, verify logged)
+- [x] Reset hardware button works (verify "RR" command logged)
+- [x] Clear log button empties activity log (verify UI cleared)
+- [x] Log size management works (send 1500 signals, verify only last 1000 remain)
 
 ---
 

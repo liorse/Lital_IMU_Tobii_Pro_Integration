@@ -143,3 +143,15 @@ Two models control how infant movement affects mobile stimuli:
 - Stimuli subprocess must be cleanly terminated to avoid orphaned processes
 - Uses `atexit.register()` to ensure subprocess cleanup
 - Version 1.0.1 introduced clean subprocess termination
+
+## Hardware Requirements
+
+### USB TTL Module
+- **Driver Latency**: FTDI VCP driver latency MUST be set to **1ms** (default 16ms) in Device Manager for sub-17ms timing.
+- **Port**: Typically COM3 (configurable in config.yaml).
+- **Protocol**: 115200 baud, 8N1, 2-byte hex commands.
+
+### Error Recovery
+- **COM Port Unavailable**: Check if another app (Arduino, PuTTY) is using the port. Update config.yaml if port changed.
+- **Hardware Disconnected**: App automatically switches to Simulated mode. Reconnect hardware and restart app to restore.
+- **High Latency**: If signals drift, verify FTDI driver latency is 1ms in Device Manager.

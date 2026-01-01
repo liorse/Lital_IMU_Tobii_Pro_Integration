@@ -57,3 +57,18 @@ music:
 
 baseline:
   time_to_start_mobile_sound_after_baseline_start_seconds: 5
+
+hardware:
+  usb_ttl_module:
+    enabled: true
+    port: "COM3"
+    baudrate: 115200
+    timeout_seconds: 5
+    fallback_to_simulated: true
+    signal_map:
+      experiment_start: 0x01
+      experiment_stop: 0x02
+      mobile_stimulus_on: 0x10
+      mobile_stimulus_off: 0x11
+      baseline_start: 0x20
+      baseline_end: 0x21
