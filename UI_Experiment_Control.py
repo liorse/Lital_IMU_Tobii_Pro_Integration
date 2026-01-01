@@ -786,11 +786,10 @@ class ExperimentControllerUI(Measurement):
                 self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
                 self.events_h5[-1] = ["Task", "End", datetime.now().isoformat()]
 
-            # Send TTL signal for end of experiment (Last Step + 1)
+            # Send TTL signal for end of experiment (Fixed value 50)
             if self.usb_ttl:
                 try:
-                    # Assuming self.step_number holds the last executed step number
-                    end_event_val = int(self.step_number) + 1
+                    end_event_val = 50
                     if 0 <= end_event_val <= 255:
                         self.usb_ttl.send_ttl_signal(end_event_val)
                         print(f"Sent End of Experiment TTL: {end_event_val}")
