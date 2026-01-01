@@ -2,6 +2,7 @@ import pythoncom
 pythoncom.CoInitialize()
 import yaml
 import sys
+from PyQt5 import QtWidgets
 from ScopeFoundry import BaseMicroscopeApp
 from HW_MetaMotionRL import MetaMotionRLHW
 from HW_USB_TTL import USBTTLHardware
@@ -46,7 +47,7 @@ class AgencySensor(BaseMicroscopeApp):
     def setup(self):
         
         #Add App wide settings
-        self.settings.New('Version', dtype=str, initial='1.0.5')
+        self.settings.New('Version', dtype=str, initial='1.0.6')
 
         # the version number to App name
         self.name = 'Agency Sensor v{}'.format(self.settings['Version'])
@@ -76,6 +77,10 @@ class AgencySensor(BaseMicroscopeApp):
         # show ui
         self.ui.show()
         self.ui.activateWindow()
+        
+        # Select MetaWear Sensors Control tab
+        self.measurements['MetaWear Sensors Control'].ui.show()
+        self.measurements['MetaWear Sensors Control'].ui.raise_()
 
 
 if __name__ == '__main__':

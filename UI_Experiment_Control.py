@@ -217,6 +217,12 @@ class ExperimentControllerUI(Measurement):
         self.LeftLegMeta = self.app.hardware['LeftLegMeta']
         self.RightLegMeta = self.app.hardware['RightLegMeta']
 
+        # Add reference to USB TTL module
+        if 'usb_ttl_module' in self.app.hardware:
+            self.usb_ttl = self.app.hardware['usb_ttl_module']
+        else:
+            self.usb_ttl = None
+
         DataLength = 500
         self.buffer = np.zeros(DataLength)
 
@@ -357,6 +363,19 @@ class ExperimentControllerUI(Measurement):
         self.ui.stop_stimuli_pushButton.clicked.connect(self.interrupt)
         self.task_table_model.itemChanged.connect(self.on_item_changed)
         self.update_task_ID()
+        
+        # Add TTL status indicator
+        from PyQt5.QtWidgets import QLabel
+        self.ttl_status_label = QLabel("")
+        self.ttl_status_label.setStyleSheet("font-weight: bold; color: orange;")
+        task_structure_layout.addWidget(self.ttl_status_label)
+        
+        # Connect listeners to hardware settings
+        if self.usb_ttl:
+            self.usb_ttl.settings.connection_status.add_listener(self.update_ttl_status_label)
+            self.usb_ttl.settings.simulated_mode.add_listener(self.update_ttl_status_label)
+            
+        self.update_ttl_status_label()
 
     def next_step(self):
         if self.scheduler.get_job(job_id='step_timer') and self.state != "paused":
@@ -424,6 +443,21 @@ class ExperimentControllerUI(Measurement):
         current_date = time.strftime("%Y.%m.%d")
         task_ID = f"{task_name}.{current_date}.{participant}.{age}.{trial_number}"
         self.settings['task_ID'] = task_ID
+
+    def update_ttl_status_label(self):
+        """Update the TTL status label to show if TTL is simulated or not connected."""
+        if not self.usb_ttl:
+            self.ttl_status_label.setText("⚠ TTL Module: Not Available")
+            self.ttl_status_label.setStyleSheet("font-weight: bold; color: red;")
+        elif self.usb_ttl.settings['simulated_mode']:
+            self.ttl_status_label.setText("⚠ TTL Module: SIMULATED (not connected to Tobii)")
+            self.ttl_status_label.setStyleSheet("font-weight: bold; color: orange;")
+        elif self.usb_ttl.settings['connection_status'] == 'Connected':
+            self.ttl_status_label.setText("✓ TTL Module: Connected")
+            self.ttl_status_label.setStyleSheet("font-weight: bold; color: green;")
+        else:
+            self.ttl_status_label.setText("⚠ TTL Module: Disconnected")
+            self.ttl_status_label.setStyleSheet("font-weight: bold; color: orange;")
 
     def update_display(self):
         """
@@ -535,6 +569,22 @@ class ExperimentControllerUI(Measurement):
             self.previous_step = -1
             self.timer_expired = False
 
+            # Connect USB TTL if not connected
+            if self.usb_ttl:
+                # Use the 'connected' setting to ensure UI updates
+                if not self.usb_ttl.settings['connected']:
+                    print("USB TTL not connected. Attempting to connect...")
+                    self.usb_ttl.settings['connected'] = True
+                
+                # Update TTL status label after connection attempt
+                self.update_ttl_status_label()
+                
+                # Reset TTL to 0 before starting
+                try:
+                    self.usb_ttl.send_ttl_signal(0)
+                except Exception as e:
+                    print(f"Error resetting TTL signal: {e}")
+
             # Will run forever until interrupt is called.
             # Start Streaming Sensor Data and initiate saving the data
             if not self.metawear_ui.interrupt_measurement_called:
@@ -569,6 +619,19 @@ class ExperimentControllerUI(Measurement):
                     # get all the step data from self.step_structure_data
                     step_number = self.step_structure_data[self.current_step][0]
                     self.step_number = step_number
+
+                    # Send TTL signal with step number
+                    if self.usb_ttl:
+                        try:
+                            # Ensure step_number is a valid byte (0-255)
+                            ttl_val = int(step_number)
+                            if 0 <= ttl_val <= 255:
+                                self.usb_ttl.send_ttl_signal(ttl_val)
+                            else:
+                                print(f"Warning: Step number {ttl_val} is out of range (0-255) for TTL signal.")
+                        except Exception as e:
+                            print(f"Error sending TTL signal: {e}")
+
                     step_description = self.step_structure_data[self.current_step][1]
                     self.step_description = step_description
                     step_duration = self.step_structure_data[self.current_step][2]
@@ -722,6 +785,19 @@ class ExperimentControllerUI(Measurement):
             if self.settings['save_h5']:
                 self.events_h5.resize((self.events_h5.shape[0] + 1, 3))
                 self.events_h5[-1] = ["Task", "End", datetime.now().isoformat()]
+
+            # Send TTL signal for end of experiment (Last Step + 1)
+            if self.usb_ttl:
+                try:
+                    # Assuming self.step_number holds the last executed step number
+                    end_event_val = int(self.step_number) + 1
+                    if 0 <= end_event_val <= 255:
+                        self.usb_ttl.send_ttl_signal(end_event_val)
+                        print(f"Sent End of Experiment TTL: {end_event_val}")
+                    else:
+                        print(f"Warning: End event number {end_event_val} is out of range (0-255).")
+                except Exception as e:
+                    print(f"Error sending End of Experiment TTL: {e}")
 
             print("stop streaming sensor data")
             self.metawear_ui.interrupt()
