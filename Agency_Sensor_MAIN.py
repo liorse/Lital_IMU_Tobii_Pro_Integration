@@ -65,10 +65,10 @@ class AgencySensor(BaseMicroscopeApp):
         
         #Add measurement components
         print("Create Measurement objects")
+        self.add_measurement(USBTTLMonitorUI(self))
         self.add_measurement(MetaWearUI(self))
         self.add_measurement(MobileControllerUI(self))
         self.add_measurement(ExperimentControllerUI(self))
-        self.add_measurement(USBTTLMonitorUI(self))
         
         # Connect to custom gui
         
@@ -77,11 +77,6 @@ class AgencySensor(BaseMicroscopeApp):
         # show ui
         self.ui.show()
         self.ui.activateWindow()
-        
-        # Select MetaWear Sensors Control tab
-        self.measurements['MetaWear Sensors Control'].ui.show()
-        self.measurements['MetaWear Sensors Control'].ui.raise_()
-
 
 if __name__ == '__main__':
   
