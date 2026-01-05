@@ -378,7 +378,13 @@ class ExperimentControllerUI(Measurement):
         self.update_ttl_status_label()
 
     def next_step(self):
-        if self.scheduler.get_job(job_id='step_timer') and self.state != "paused":
+        # Check if there's an active job and we're not paused, and not already expired
+        if self.scheduler.get_job(job_id='step_timer') and self.state != "paused" and not self.timer_expired:
+            # Remove the job first to prevent interval re-triggering
+            self.scheduler.remove_job(job_id='step_timer')
+            # Also remove mobile music timer if it exists
+            if self.scheduler.get_job(job_id='mobile_music_timer'):
+                self.scheduler.remove_job(job_id='mobile_music_timer')
             self.timer_expired = True
 
     def pause(self):
@@ -685,10 +691,10 @@ class ExperimentControllerUI(Measurement):
                         pygame.mixer.music.play()
                         
                         # start a timer for the duration of the fixation step
-                        
-                        self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
                         self.job_start_time = datetime.now(timezone.utc)
                         self.total_pause_time = 0
+                        fire_time = self.job_start_time + timedelta(seconds=step_duration)
+                        self.scheduler.add_job(func = self.step_timer, trigger = 'date', run_date=fire_time, id='step_timer')
 
                     else:
                         # disconnect all limbs from mobile
@@ -716,14 +722,15 @@ class ExperimentControllerUI(Measurement):
                         # Initialize pygame mixer
                         if background_music:
                             # start a timer to start mobile music after number of seconds
-                            self.scheduler.add_job(func=self.mobile_start_music, trigger='interval', 
-                                                   seconds=self.time_to_wait_in_baseline_before_mobile_music_starts, id='mobile_music_timer')
+                            mobile_music_fire_time = datetime.now(timezone.utc) + timedelta(seconds=self.time_to_wait_in_baseline_before_mobile_music_starts)
+                            self.scheduler.add_job(func=self.mobile_start_music, trigger='date', 
+                                                   run_date=mobile_music_fire_time, id='mobile_music_timer')
                         
                         # start a timer for the duration of the fixation step
-                        
-                        self.scheduler.add_job(func = self.step_timer, trigger = 'interval', seconds=step_duration, id='step_timer')
                         self.job_start_time = datetime.now(timezone.utc)
                         self.total_pause_time = 0
+                        fire_time = self.job_start_time + timedelta(seconds=step_duration)
+                        self.scheduler.add_job(func = self.step_timer, trigger = 'date', run_date=fire_time, id='step_timer')
                     
                     self.previous_step = self.current_step
 
