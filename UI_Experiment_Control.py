@@ -501,7 +501,7 @@ class ExperimentControllerUI(Measurement):
                 self.mobile_ui.socket_sound.send_string(message)
             except zmq.error.ZMQError as e:
                 pass
-        self.scheduler.remove_job(job_id='mobile_music_timer')
+        # Job is automatically removed after execution with date trigger, no need to remove manually
 
     def run(self):
         """
