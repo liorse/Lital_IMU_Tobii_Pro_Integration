@@ -1,3 +1,13 @@
+participant_ranges:
+  shiba:
+    min: 6000
+    max: 6999
+    initial: 6000
+  hebrew:
+    min: 5000
+    max: 5999
+    initial: 5000
+
 tasks:
   - step_number: 1
     step_description: "Fixation"

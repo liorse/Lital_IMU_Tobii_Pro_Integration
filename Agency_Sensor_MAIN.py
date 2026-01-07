@@ -29,11 +29,19 @@ class AgencySensor(BaseMicroscopeApp):
         else:
             self.ttl_port = 'COM3'
         
+        # Load participant ranges
+        self.participant_ranges = config.get('participant_ranges', {
+            'shiba': {'min': 6000, 'max': 6999, 'initial': 6000},
+            'hebrew': {'min': 5000, 'max': 5999, 'initial': 5000}
+        })
+        
         if len(argv) > 1:
             if argv[1] == 'shiba':
                 hardware_configs = {item['name']: item['MAC'] for item in config['hardware_shiba']}
+                self.hardware_type = 'shiba'
             elif argv[1] == 'hebrew':
                 hardware_configs = {item['name']: item['MAC'] for item in config['hardware_hebrew']}
+                self.hardware_type = 'hebrew'
             
         self.left_hand_mac = hardware_configs['LeftHandMeta']
         self.right_hand_mac = hardware_configs['RightHandMeta']

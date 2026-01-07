@@ -200,8 +200,17 @@ class ExperimentControllerUI(Measurement):
         
         # Experiment Specific Settings
         self.settings.New('acceleration_threshold', dtype=float, unit='g', initial=0.6, vmin=0.0, vmax=16.0)
-        # participants settings
-        self.settings.New('participant', dtype=int, unit='', initial=5000, vmin=5000, vmax=5999)
+        # participants settings - set range based on hardware type from config
+        hardware_type = getattr(self.app, 'hardware_type', 'hebrew')  # default to hebrew if not set
+        participant_ranges = getattr(self.app, 'participant_ranges', {
+            'shiba': {'min': 6000, 'max': 6999, 'initial': 6000},
+            'hebrew': {'min': 5000, 'max': 5999, 'initial': 5000}
+        })
+        range_config = participant_ranges.get(hardware_type, {'min': 5000, 'max': 5999, 'initial': 5000})
+        self.settings.New('participant', dtype=int, unit='', 
+                         initial=range_config['initial'], 
+                         vmin=range_config['min'], 
+                         vmax=range_config['max'])
         self.settings.New('age', dtype=int, unit='months', initial=4, vmin=0, vmax=96)
 
         self.settings.New('task_name', initial= ('Mobile', "Mobile"), dtype=str, choices= [ ('Mobile', "Mobile")])
