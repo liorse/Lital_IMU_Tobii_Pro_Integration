@@ -21,6 +21,10 @@ version 1.0.4
 1. added the feature of loading video files from the media folder. these video files can be used instead of live camera feed
 2. the video restarts from the beginning after a step is over
 
+version 1.0.7
+1. Fixed QObject::connect warning related to QItemSelection by replacing direct UI widget updates from background threads with thread-safe ScopeFoundry setting updates.
+
+
 
 To install run:
 install 
