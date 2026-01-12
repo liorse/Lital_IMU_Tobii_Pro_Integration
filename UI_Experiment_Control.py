@@ -217,6 +217,10 @@ class ExperimentControllerUI(Measurement):
         self.settings.New('trial_number', dtype=int, initial=1 ,vmin=1, vmax=100)
         self.settings.New('task_ID', dtype=str, initial='', ro=True)
         
+        # Settings for pause button to avoid Qt threading violations
+        self.settings.New('pause_button_text', dtype=str, initial='Pause Task', ro=False)
+        self.settings.New('pause_button_checked', dtype=bool, initial=False, ro=False)
+        
         # Define how often to update display during a run
         self.display_update_period = 1/60
         
@@ -262,6 +266,10 @@ class ExperimentControllerUI(Measurement):
         self.settings.task_name.connect_to_widget(self.ui.task_name_ComboBox)
         self.settings.trial_number.connect_to_widget(self.ui.trial_number_spinBox)
         self.settings.task_ID.connect_to_widget(self.ui.Task_ID_QLine_edit)
+        
+        # Connect pause button settings to avoid Qt threading violations
+        self.settings.pause_button_text.connect_to_widget(self.ui.pause_stimuli_pushButton)
+        self.settings.pause_button_checked.connect_to_widget(self.ui.pause_stimuli_pushButton)
 
         self.ui.Participant_spinBox.valueChanged.connect(self.update_task_ID)
         self.ui.age_spinBox.valueChanged.connect(self.update_task_ID)
@@ -402,7 +410,7 @@ class ExperimentControllerUI(Measurement):
                 self.state = "paused"
                 self.scheduler.pause_job(job_id="step_timer")
                 self.pause_time = datetime.now(timezone.utc)
-                self.ui.pause_stimuli_pushButton.setText("Resume Task")
+                self.settings['pause_button_text'] = "Resume Task"
 
                 # save pause time to the h5 file
                 if self.settings['save_h5']:
@@ -422,7 +430,7 @@ class ExperimentControllerUI(Measurement):
             self.scheduler.modify_job(job_id="step_timer", next_run_time=adjusted_next_run_time)
 
             #self.scheduler.resume_job(job_id="step_timer")
-            self.ui.pause_stimuli_pushButton.setText("Pause Task")
+            self.settings['pause_button_text'] = "Pause Task"
 
             # save resume time to the h5 file
             if self.settings['save_h5']:
@@ -860,8 +868,8 @@ class ExperimentControllerUI(Measurement):
             self.remaining_time_in_step = 0
             self.state = "stopped" # idle, running, paused, stopped
             
-            self.ui.pause_stimuli_pushButton.setText("Pause Task")
-            self.ui.pause_stimuli_pushButton.setChecked(False)
+            self.settings['pause_button_text'] = "Pause Task"
+            self.settings['pause_button_checked'] = False
 
             if self.settings['save_h5']:
                 # make sure to close the data file
