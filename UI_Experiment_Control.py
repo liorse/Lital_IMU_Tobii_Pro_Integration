@@ -668,7 +668,7 @@ class ExperimentControllerUI(Measurement):
 
                         # disconnect all limbs from mobile
                         #self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox = "None"
-                        self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText("None")
+                        self.mobile_ui.settings['limb_connected_to_mobile'] = "_none"
 
                         # Send to mobile the start of fixation step
                         if hasattr(self.mobile_ui, 'socket'):
@@ -709,7 +709,15 @@ class ExperimentControllerUI(Measurement):
                         # disconnect all limbs from mobile
                         #self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox = "None"
                         
-                        self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText(limb_connected_to_mobile)
+                        limb_map = {
+                            "Left Hand": "_left_hand",
+                            "Right Hand": "_right_hand",
+                            "Left Leg": "_left_leg",
+                            "Right Leg": "_right_leg",
+                            "None": "_none"
+                        }
+                        val = limb_map.get(limb_connected_to_mobile, "_none")
+                        self.mobile_ui.settings['limb_connected_to_mobile'] = val
 
                         # Send to mobile the start of fixation step
                         if hasattr(self.mobile_ui, 'socket'):
@@ -823,7 +831,7 @@ class ExperimentControllerUI(Measurement):
             self.metawear_ui.interrupt()
 
             print("disconnect all limbs from mobile")
-            self.mobile_ui.ui.Limb_connected_to_mobile_ComboBox.setCurrentText("None")
+            self.mobile_ui.settings['limb_connected_to_mobile'] = "_none"
 
             print("show dark screen on mobile")
             try:
