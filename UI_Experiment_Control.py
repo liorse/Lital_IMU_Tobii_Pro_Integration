@@ -268,8 +268,9 @@ class ExperimentControllerUI(Measurement):
         self.settings.task_ID.connect_to_widget(self.ui.Task_ID_QLine_edit)
         
         # Connect pause button settings to avoid Qt threading violations
-        self.settings.pause_button_text.connect_to_widget(self.ui.pause_stimuli_pushButton)
-        self.settings.pause_button_checked.connect_to_widget(self.ui.pause_stimuli_pushButton)
+        # Use Qt signals for thread-safe UI updates from worker thread
+        self.settings.pause_button_text.updated_value.connect(self.ui.pause_stimuli_pushButton.setText)
+        self.settings.pause_button_checked.updated_value.connect(self.ui.pause_stimuli_pushButton.setChecked)
 
         self.ui.Participant_spinBox.valueChanged.connect(self.update_task_ID)
         self.ui.age_spinBox.valueChanged.connect(self.update_task_ID)
@@ -422,14 +423,25 @@ class ExperimentControllerUI(Measurement):
             elapsed_pause_time = datetime.now(timezone.utc) - self.pause_time
             original_next_run_time = self.scheduler.get_job(job_id="step_timer").trigger.get_next_fire_time(self.job_start_time, self.pause_time)
             self.total_pause_time += elapsed_pause_time.total_seconds()
-            adjusted_next_run_time = original_next_run_time + timedelta(seconds=self.total_pause_time)
-            print(f"original_next_run_time: {original_next_run_time}")
-            print(f"adjusted_next_run_time: {adjusted_next_run_time}")
-            print(f"elapsed_pause_time: {elapsed_pause_time}")
-            print(f"total_pause_time: {self.total_pause_time}")
-            self.scheduler.modify_job(job_id="step_timer", next_run_time=adjusted_next_run_time)
+            
+            # Handle case where get_next_fire_time returns None
+            if original_next_run_time is None:
+                # Calculate next run time based on when job was originally scheduled
+                job = self.scheduler.get_job(job_id="step_timer")
+                if job and hasattr(job.trigger, 'run_date'):
+                    original_next_run_time = job.trigger.run_date
+            
+            if original_next_run_time:
+                adjusted_next_run_time = original_next_run_time + timedelta(seconds=self.total_pause_time)
+                print(f"original_next_run_time: {original_next_run_time}")
+                print(f"adjusted_next_run_time: {adjusted_next_run_time}")
+                print(f"elapsed_pause_time: {elapsed_pause_time}")
+                print(f"total_pause_time: {self.total_pause_time}")
+                self.scheduler.modify_job(job_id="step_timer", next_run_time=adjusted_next_run_time)
+            else:
+                print("Warning: Could not calculate adjusted next run time, resuming job as-is")
+                self.scheduler.resume_job(job_id="step_timer")
 
-            #self.scheduler.resume_job(job_id="step_timer")
             self.settings['pause_button_text'] = "Pause Task"
 
             # save resume time to the h5 file
