@@ -38,6 +38,9 @@ def zmq_listener():
         # Receive a message in the format "speed,volume" (e.g., "1.5,0.8")
         message = socket.recv_string()
         speed, volume = map(float, message.split(","))
+        # Round to avoid floating point precision issues (e.g., 0.10000000000000003)
+        speed = round(speed, 1)
+        volume = round(volume, 1)
         #print(f"Received new speed: {speed}, new volume: {volume}")
 
         # Update speed and volume
@@ -131,7 +134,6 @@ def mp3_sound_reactive_Listener(sound1):
         if change_detected:
             change_detected = False
             if current_volume <= 0.1:
-                
                 # turn down the volume to 0
                 # lower the volume over 100 ms
                 if sound1.get_volume() != 0.0:
