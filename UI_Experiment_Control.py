@@ -800,6 +800,14 @@ class ExperimentControllerUI(Measurement):
                     # stop background music if it is playing
                     if background_music:
                         pygame.mixer.music.stop()
+                        # add another stop to the background music
+                        # Stop the audio server from playing the mobile music
+                        message = f"{1},{0.1}" # sound speed , sound volume
+                        if hasattr(self.mobile_ui, 'socket_sound'):
+                            try:
+                                self.mobile_ui.socket_sound.send_string(message)
+                            except zmq.error.ZMQError as e:
+                                pass
                     
                     # play a sound to indicate the end of the step
                     with open('config.yaml', 'r') as file:
